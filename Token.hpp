@@ -2,10 +2,15 @@
 #include "FiniteAutomata.hpp"
 #include <utility>
 #include <string>
+#include <map>
 
 class Token {
 
-    typedef std::pair<int, int> Position_t;
+    union Value {
+        char* s;
+        double d;
+        unsigned long long ull;
+    };
 
     enum class Class {
         ReservedWord,
@@ -15,25 +20,12 @@ class Token {
         Constant
     };
 
-    union Value {
-        char* s;
-        double d;
-        unsigned long long ull;
-    };
+    typedef std::pair<int, int> Position_t;
+    typedef std::map<std::string, Class> Dict_t;
 
     public:
+        Token(FiniteAutomata::States state, Position_t pos, std::string raw, std::string value);
         Token() {};
-        Token(FiniteAutomata::States state, Position_t pos, std::string raw, std::string value) : _pos(pos), _raw(raw) {
-            switch (state) {
-            case FiniteAutomata::States::Decimal:
-                _value.ull = std::stoull(value);
-                break;
-
-            default:
-                break;
-            };
-        }
-
         ~Token() {};
 
     private:
@@ -41,4 +33,5 @@ class Token {
         Value _value;
         Position_t _pos;
         std::string _raw;
+        static const Dict_t _reservedWords;
 };
