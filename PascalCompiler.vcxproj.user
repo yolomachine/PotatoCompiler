@@ -6,8 +6,10 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>-l test.txt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommand>C:\Users\ьтт\Documents\Visual Studio 2015\Projects\PascalCompiler\Debug\PascalCompiler.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>
+    </LocalDebuggerCommand>
   </PropertyGroup>
 </Project>

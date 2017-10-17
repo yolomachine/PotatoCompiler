@@ -11,6 +11,7 @@ const LexicalAnalyzer::Dict_t LexicalAnalyzer::_dict = {
 
 LexicalAnalyzer::LexicalAnalyzer(char* filename) : _currentState(FiniteAutomata::States::Whitespace), _row(1), _column(1) {
     open(filename);
+    _file.peek();
 };
 
 Token LexicalAnalyzer::currentToken() const {
@@ -155,7 +156,8 @@ char LexicalAnalyzer::codeToChar(FiniteAutomata::States state, std::string code)
 template<typename T>
 void LexicalAnalyzer::log(T& os) {
     std::list<Token> tokens;
-    while (!eof())        tokens.push_back(nextToken());
+    while (!eof()) 
+        tokens.push_back(nextToken());
     for (Token t : tokens) {
         std::string pos, type, raw, val;
         pos += "(";
