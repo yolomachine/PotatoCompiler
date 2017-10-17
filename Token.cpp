@@ -57,8 +57,8 @@ const Token::Dict_t Token::_reservedWords = {
 
 Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std::string value) : _pos(pos), _raw(raw) {
     switch (state) {
-
     case FiniteAutomata::States::Identifier:        
+        _vtype = ValueType::String;
         _value.s = new char[value.length() + 1];
         memcpy(_value.s, value.c_str(), value.length() + 1);
         _class = _reservedWords.count(value) ? _reservedWords.at(value) : Class::Identifier;
@@ -71,6 +71,7 @@ Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std:
     case FiniteAutomata::States::OperatorMult:
     case FiniteAutomata::States::OperatorPlus:
     case FiniteAutomata::States::Slash:
+        _vtype = ValueType::String;
         _value.s = new char[value.length() + 1];
         memcpy(_value.s, value.c_str(), value.length() + 1);
         _class = Class::Operator;
@@ -79,53 +80,36 @@ Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std:
     case FiniteAutomata::States::Colon:
     case FiniteAutomata::States::Separator:
     case FiniteAutomata::States::LeftParenthesis:
+        _vtype = ValueType::String;
         _value.s = new char[value.length() + 1];
         memcpy(_value.s, value.c_str(), value.length() + 1);
         _class = Class::Separator;
+        break;
 
     case FiniteAutomata::States::Decimal:
-        _value.ull = std::stoull(value);
-        _class = Class::Constant;
-        break;
-    case FiniteAutomata::States::DecimalCharCode:
-        memcpy(_value.s, new char(static_cast<char>(std::stoi(value.erase(0, 1)))), 2);
-        _class = Class::Constant;
-        break;
-
     case FiniteAutomata::States::Bin:
-        _value.ull = std::stoi(value.erase(0, 1), 0, 2);
-        _class = Class::Constant;
-        break;
-    case FiniteAutomata::States::BinCharCode:
-        memcpy(_value.s, new char(static_cast<char>(std::stoi(value.erase(0, 2), 0, 2))), 2);
-        _class = Class::Constant;
-        break;
-
     case FiniteAutomata::States::Hex:
-        _value.ull = std::stoi(value.erase(0, 1), 0, 16);
-        _class = Class::Constant;
-        break;
-    case FiniteAutomata::States::HexCharCode:
-        memcpy(_value.s, new char(static_cast<char>(std::stoi(value.erase(0, 2), 0, 16))), 2);
-        _class = Class::Constant;
-        break;
-
     case FiniteAutomata::States::Oct:
-        _value.ull = std::stoi(value.erase(0, 1), 0, 8);
-        _class = Class::Constant;
-        break;
-    case FiniteAutomata::States::OctCharCode:
-        memcpy(_value.s, new char(static_cast<char>(std::stoi(value.erase(0, 2), 0, 8))), 2);
+        _vtype = ValueType::ULL;
+        _value.ull = std::stoull(value, 0, static_cast<unsigned int>(state));
         _class = Class::Constant;
         break;
 
     case FiniteAutomata::States::Float:
     case FiniteAutomata::States::FloatEnd:
+    case FiniteAutomata::States::FloatingPoint:
+        _vtype = ValueType::Double;
         _value.d = std::stod(value);
         _class = Class::Constant;
         break;
 
+    case FiniteAutomata::States::DecimalCharCode:
+    case FiniteAutomata::States::BinCharCode:
+    case FiniteAutomata::States::HexCharCode:
+    case FiniteAutomata::States::OctCharCode:
     case FiniteAutomata::States::StringEnd:
+    case FiniteAutomata::States::EndOfFile:
+        _vtype = ValueType::String;
         _value.s = new char[value.length() + 1];
         memcpy(_value.s, value.c_str(), value.length() + 1);
         _class = Class::Constant;

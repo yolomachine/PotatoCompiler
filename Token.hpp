@@ -12,12 +12,18 @@ class Token {
         unsigned long long ull;
     };
 
+    enum class ValueType {
+        String,
+        Double,
+        ULL,
+    };
+
     enum class Class {
         ReservedWord,
         Identifier,
         Operator,
         Separator,
-        Constant
+        Constant,
     };
 
     typedef std::pair<int, int> Position_t;
@@ -31,6 +37,7 @@ class Token {
     private:
         Class _class;
         Value _value;
+        ValueType _vtype;
         Position_t _pos;
         std::string _raw;
         static const Dict_t _reservedWords;
