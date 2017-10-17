@@ -1,0 +1,9 @@
+(1, 1)              Constant            ''                            
+(1, 4)              Constant            '1231'                        1231
+(2, 3)              Constant            '''"124\"+?!1 or die $!;'     '"124\"+?!1 or die $!;
+(2, 28)             Separator           ;                             ;
+(3, 1)              Reserved word       string                        string
+(3, 8)              Operator            :=                            :=
+(3, 11)             Constant            '123'#123#100'???'#$5a        123{d???Z
+(3, 33)             Separator           ;                             ;
+(4, 1)              Constant            EOF                           EOF

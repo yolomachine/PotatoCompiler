@@ -1,0 +1,21 @@
+
+with open('FiniteAutomata.hpp', 'w') as f:
+	print('#pragma once', file=f)
+	print('namespace FiniteAutomata {', file=f)
+	print('\tenum class States {', file=f)
+	for x in states:
+		print('\t\t' + states[x], file=f)
+	print('\t};\n', file=f)
+	print('\tstatic const States states[static_cast<unsigned int>(States::Amount)][128] = {', file=f)
+
+	rdata = []
+	for i in data:
+	    rdata.append(['********{'])
+	    for j in i:
+	        if j == ' ':
+	            continue
+	        rdata[-1].append('States::' + states[j])
+	    rdata[-1].append('},')
+
+	print(tabulate(rdata, tablefmt='plain', numalign='None').replace('*', ' '), file=f)
+	print('\t};\n}', file=f)

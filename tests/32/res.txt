@@ -1,0 +1,13 @@
+(1, 1)              Constant            #100                          d
+(1, 6)              Operator            =                             =
+(1, 8)              Identifier          d                             d
+(2, 3)              Constant            #%1100100                     d
+(2, 13)             Operator            =                             =
+(2, 15)             Constant            #100                          d
+(3, 9)              Constant            #&144                         d
+(3, 15)             Operator            =                             =
+(3, 17)             Constant            #%1100100                     d
+(4, 17)             Constant            #$64                          d
+(4, 22)             Operator            =                             =
+(4, 24)             Constant            #&144                         d
+(5, 1)              Constant            EOF                           EOF

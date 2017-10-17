@@ -1,0 +1,20 @@
+program NOD;
+uses crt;
+var M,N: integer;
+begin
+clrscr;
+writeln;
+write('vv. 1-e chislo');readln(m);
+write('vv. 2-e chislo');readln(n);
+while M<>N do
+       begin
+              if M>N
+                then begin
+                       M:=M-N;
+                end
+                else begin
+                      N:=N-M;
+                end;
+       end;
+writeln('NOD= ',M);
+readln; end.

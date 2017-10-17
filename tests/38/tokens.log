@@ -1,0 +1,81 @@
+(1, 1)              Reserved word       program                       program
+(1, 9)              Identifier          NOD                           nod
+(1, 12)             Separator           ;                             ;
+(2, 1)              Reserved word       uses                          uses
+(2, 6)              Identifier          crt                           crt
+(2, 9)              Separator           ;                             ;
+(3, 1)              Reserved word       var                           var
+(3, 5)              Identifier          M                             m
+(3, 6)              Separator           ,                             ,
+(3, 7)              Identifier          N                             n
+(3, 8)              Separator           :                             :
+(3, 10)             Identifier          integer                       integer
+(3, 17)             Separator           ;                             ;
+(4, 1)              Reserved word       begin                         begin
+(5, 1)              Identifier          clrscr                        clrscr
+(5, 7)              Separator           ;                             ;
+(6, 1)              Identifier          writeln                       writeln
+(6, 8)              Separator           ;                             ;
+(7, 1)              Identifier          write                         write
+(7, 6)              Separator           (                             (
+(7, 7)              Constant            'vv. 1-e chislo'              vv. 1-e chislo
+(7, 23)             Separator           )                             )
+(7, 24)             Separator           ;                             ;
+(7, 25)             Identifier          readln                        readln
+(7, 31)             Separator           (                             (
+(7, 32)             Identifier          m                             m
+(7, 33)             Separator           )                             )
+(7, 34)             Separator           ;                             ;
+(8, 1)              Identifier          write                         write
+(8, 6)              Separator           (                             (
+(8, 7)              Constant            'vv. 2-e chislo'              vv. 2-e chislo
+(8, 23)             Separator           )                             )
+(8, 24)             Separator           ;                             ;
+(8, 25)             Identifier          readln                        readln
+(8, 31)             Separator           (                             (
+(8, 32)             Identifier          n                             n
+(8, 33)             Separator           )                             )
+(8, 34)             Separator           ;                             ;
+(9, 1)              Reserved word       while                         while
+(9, 7)              Identifier          M                             m
+(9, 8)              Operator            <>                            <>
+(9, 10)             Identifier          N                             n
+(9, 12)             Reserved word       do                            do
+(10, 8)             Reserved word       begin                         begin
+(11, 15)            Reserved word       if                            if
+(11, 18)            Identifier          M                             m
+(11, 19)            Operator            >                             >
+(11, 20)            Identifier          N                             n
+(12, 17)            Reserved word       then                          then
+(12, 22)            Reserved word       begin                         begin
+(13, 24)            Identifier          M                             m
+(13, 25)            Operator            :=                            :=
+(13, 27)            Identifier          M                             m
+(13, 28)            Operator            -                             -
+(13, 29)            Identifier          N                             n
+(13, 30)            Separator           ;                             ;
+(14, 17)            Reserved word       end                           end
+(15, 17)            Reserved word       else                          else
+(15, 22)            Reserved word       begin                         begin
+(16, 23)            Identifier          N                             n
+(16, 24)            Operator            :=                            :=
+(16, 26)            Identifier          N                             n
+(16, 27)            Operator            -                             -
+(16, 28)            Identifier          M                             m
+(16, 29)            Separator           ;                             ;
+(17, 17)            Reserved word       end                           end
+(17, 20)            Separator           ;                             ;
+(18, 8)             Reserved word       end                           end
+(18, 11)            Separator           ;                             ;
+(19, 1)             Identifier          writeln                       writeln
+(19, 8)             Separator           (                             (
+(19, 9)             Constant            'NOD= '                       NOD= 
+(19, 16)            Separator           ,                             ,
+(19, 17)            Identifier          M                             m
+(19, 18)            Separator           )                             )
+(19, 19)            Separator           ;                             ;
+(20, 1)             Identifier          readln                        readln
+(20, 7)             Separator           ;                             ;
+(20, 9)             Reserved word       end                           end
+(20, 12)            Operator            .                             .
+(21, 1)             Constant            EOF                           EOF

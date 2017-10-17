@@ -1,0 +1,4 @@
+(1, 1)              Constant            #%1100100                     d
+(1, 11)             Operator            =                             =
+(1, 13)             Identifier          d                             d
+(2, 1)              Constant            EOF                           EOF

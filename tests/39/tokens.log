@@ -1,0 +1,391 @@
+(1, 1)              Reserved word       uses                          uses
+(2, 3)              Identifier          sysutils                      sysutils
+(2, 11)             Separator           ;                             ;
+(4, 1)              Reserved word       type                          type
+(5, 3)              Identifier          TSchool                       tschool
+(5, 11)             Operator            =                             =
+(5, 13)             Reserved word       record                        record
+(6, 5)              Identifier          fname                         fname
+(6, 10)             Separator           :                             :
+(6, 12)             Reserved word       String                        string
+(6, 18)             Separator           ;                             ;
+(7, 5)              Identifier          fnum                          fnum
+(7, 9)              Separator           :                             :
+(7, 11)             Reserved word       String                        string
+(7, 17)             Separator           ;                             ;
+(8, 5)              Identifier          fcount                        fcount
+(8, 11)             Separator           :                             :
+(8, 13)             Identifier          Integer                       integer
+(8, 20)             Separator           ;                             ;
+(9, 3)              Reserved word       end                           end
+(9, 6)              Separator           ;                             ;
+(11, 1)             Reserved word       var                           var
+(12, 3)             Identifier          schools                       schools
+(12, 10)            Separator           :                             :
+(12, 12)            Reserved word       Array                         array
+(12, 18)            Reserved word       of                            of
+(12, 21)            Identifier          TSchool                       tschool
+(12, 28)            Separator           ;                             ;
+(13, 3)             Identifier          resSchools                    resschools
+(13, 13)            Separator           :                             :
+(13, 15)            Reserved word       Array                         array
+(13, 21)            Reserved word       of                            of
+(13, 24)            Reserved word       String                        string
+(13, 30)            Separator           ;                             ;
+(14, 3)             Identifier          nameCount                     namecount
+(14, 12)            Separator           ,                             ,
+(14, 14)            Identifier          schoolCount                   schoolcount
+(14, 25)            Separator           ,                             ,
+(14, 27)            Identifier          i                             i
+(14, 28)            Separator           ,                             ,
+(14, 30)            Identifier          j                             j
+(14, 31)            Separator           :                             :
+(14, 33)            Identifier          Integer                       integer
+(14, 40)            Separator           ;                             ;
+(15, 3)             Identifier          counter                       counter
+(15, 10)            Separator           :                             :
+(15, 12)            Identifier          Integer                       integer
+(15, 19)            Separator           ;                             ;
+(16, 3)             Identifier          name                          name
+(16, 7)             Separator           ,                             ,
+(16, 9)             Identifier          num                           num
+(16, 12)            Separator           :                             :
+(16, 14)            Reserved word       String                        string
+(16, 20)            Separator           ;                             ;
+(17, 3)             Identifier          f                             f
+(17, 4)             Separator           :                             :
+(17, 6)             Identifier          text                          text
+(17, 10)            Separator           ;                             ;
+(19, 1)             Reserved word       function                      function
+(19, 10)            Identifier          search                        search
+(19, 16)            Separator           (                             (
+(19, 17)            Reserved word       var                           var
+(19, 21)            Identifier          anum                          anum
+(19, 25)            Separator           ,                             ,
+(19, 27)            Identifier          aname                         aname
+(19, 32)            Separator           :                             :
+(19, 34)            Reserved word       string                        string
+(19, 40)            Separator           )                             )
+(19, 41)            Separator           :                             :
+(19, 43)            Reserved word       string                        string
+(19, 49)            Separator           ;                             ;
+(20, 1)             Reserved word       var                           var
+(21, 3)             Identifier          i                             i
+(21, 4)             Separator           :                             :
+(21, 6)             Identifier          integer                       integer
+(21, 13)            Separator           ;                             ;
+(22, 1)             Reserved word       begin                         begin
+(23, 3)             Reserved word       for                           for
+(23, 7)             Identifier          i                             i
+(23, 9)             Operator            :=                            :=
+(23, 12)            Constant            1                             1
+(23, 14)            Reserved word       to                            to
+(23, 17)            Identifier          length                        length
+(23, 23)            Separator           (                             (
+(23, 24)            Identifier          aname                         aname
+(23, 29)            Separator           )                             )
+(23, 31)            Reserved word       do                            do
+(24, 5)             Reserved word       if                            if
+(24, 8)             Identifier          aname                         aname
+(24, 13)            Separator           [                             [
+(24, 14)            Identifier          i                             i
+(24, 15)            Separator           ]                             ]
+(24, 17)            Reserved word       in                            in
+(24, 20)            Separator           [                             [
+(24, 21)            Constant            '0'                           0
+(24, 24)            Operator            ..                            ..
+(24, 26)            Constant            '9'                           9
+(24, 29)            Separator           ]                             ]
+(24, 31)            Reserved word       then                          then
+(24, 36)            Identifier          anum                          anum
+(24, 41)            Operator            +=                            +=
+(24, 44)            Identifier          aname                         aname
+(24, 49)            Separator           [                             [
+(24, 50)            Identifier          i                             i
+(24, 51)            Separator           ]                             ]
+(24, 52)            Separator           ;                             ;
+(25, 3)             Identifier          result                        result
+(25, 10)            Operator            :=                            :=
+(25, 13)            Identifier          anum                          anum
+(25, 17)            Separator           ;                             ;
+(26, 1)             Reserved word       end                           end
+(26, 4)             Separator           ;                             ;
+(28, 1)             Reserved word       begin                         begin
+(29, 3)             Identifier          assign                        assign
+(29, 9)             Separator           (                             (
+(29, 10)            Identifier          f                             f
+(29, 11)            Separator           ,                             ,
+(29, 13)            Constant            'schools.in'                  schools.in
+(29, 25)            Separator           )                             )
+(29, 26)            Separator           ;                             ;
+(30, 3)             Identifier          reset                         reset
+(30, 8)             Separator           (                             (
+(30, 9)             Identifier          f                             f
+(30, 10)            Separator           )                             )
+(30, 11)            Separator           ;                             ;
+(31, 3)             Identifier          readln                        readln
+(31, 9)             Separator           (                             (
+(31, 10)            Identifier          f                             f
+(31, 11)            Separator           ,                             ,
+(31, 13)            Identifier          nameCount                     namecount
+(31, 22)            Separator           )                             )
+(31, 23)            Separator           ;                             ;
+(32, 3)             Identifier          schoolCount                   schoolcount
+(32, 15)            Operator            :=                            :=
+(32, 18)            Constant            0                             0
+(32, 19)            Separator           ;                             ;
+(33, 3)             Identifier          setlength                     setlength
+(33, 12)            Separator           (                             (
+(33, 13)            Identifier          schools                       schools
+(33, 20)            Separator           ,                             ,
+(33, 22)            Identifier          schoolCount                   schoolcount
+(33, 33)            Operator            +                             +
+(33, 34)            Constant            1                             1
+(33, 35)            Separator           )                             )
+(33, 36)            Separator           ;                             ;
+(35, 3)             Reserved word       for                           for
+(35, 7)             Identifier          i                             i
+(35, 9)             Operator            :=                            :=
+(35, 12)            Constant            0                             0
+(35, 14)            Reserved word       to                            to
+(35, 17)            Identifier          nameCount                     namecount
+(35, 26)            Operator            -                             -
+(35, 27)            Constant            1                             1
+(35, 29)            Reserved word       do                            do
+(36, 3)             Reserved word       begin                         begin
+(37, 5)             Identifier          counter                       counter
+(37, 13)            Operator            :=                            :=
+(37, 16)            Constant            0                             0
+(37, 17)            Separator           ;                             ;
+(38, 5)             Identifier          num                           num
+(38, 9)             Operator            :=                            :=
+(38, 12)            Constant            ''                            
+(38, 14)            Separator           ;                             ;
+(39, 5)             Identifier          readln                        readln
+(39, 11)            Separator           (                             (
+(39, 12)            Identifier          f                             f
+(39, 13)            Separator           ,                             ,
+(39, 15)            Identifier          name                          name
+(39, 19)            Separator           )                             )
+(39, 20)            Separator           ;                             ;
+(40, 5)             Identifier          num                           num
+(40, 9)             Operator            :=                            :=
+(40, 12)            Identifier          search                        search
+(40, 18)            Separator           (                             (
+(40, 19)            Identifier          num                           num
+(40, 22)            Separator           ,                             ,
+(40, 24)            Identifier          name                          name
+(40, 28)            Separator           )                             )
+(40, 29)            Separator           ;                             ;
+(41, 5)             Reserved word       for                           for
+(41, 9)             Identifier          j                             j
+(41, 11)            Operator            :=                            :=
+(41, 14)            Constant            0                             0
+(41, 16)            Reserved word       to                            to
+(41, 19)            Identifier          schoolCount                   schoolcount
+(41, 31)            Reserved word       do                            do
+(42, 7)             Reserved word       if                            if
+(42, 10)            Identifier          num                           num
+(42, 14)            Operator            =                             =
+(42, 16)            Identifier          schools                       schools
+(42, 23)            Separator           [                             [
+(42, 24)            Identifier          j                             j
+(42, 25)            Separator           ]                             ]
+(42, 26)            Operator            .                             .
+(42, 27)            Identifier          fnum                          fnum
+(42, 32)            Reserved word       then                          then
+(43, 7)             Reserved word       begin                         begin
+(44, 9)             Identifier          schools                       schools
+(44, 16)            Separator           [                             [
+(44, 17)            Identifier          j                             j
+(44, 18)            Separator           ]                             ]
+(44, 19)            Operator            .                             .
+(44, 20)            Identifier          fnum                          fnum
+(44, 25)            Operator            :=                            :=
+(44, 28)            Identifier          num                           num
+(44, 31)            Separator           ;                             ;
+(45, 9)             Identifier          schools                       schools
+(45, 16)            Separator           [                             [
+(45, 17)            Identifier          j                             j
+(45, 18)            Separator           ]                             ]
+(45, 19)            Operator            .                             .
+(45, 20)            Identifier          fname                         fname
+(45, 26)            Operator            :=                            :=
+(45, 29)            Identifier          name                          name
+(45, 33)            Separator           ;                             ;
+(46, 9)             Identifier          inc                           inc
+(46, 12)            Separator           (                             (
+(46, 13)            Identifier          schools                       schools
+(46, 20)            Separator           [                             [
+(46, 21)            Identifier          j                             j
+(46, 22)            Separator           ]                             ]
+(46, 23)            Operator            .                             .
+(46, 24)            Identifier          fcount                        fcount
+(46, 30)            Separator           )                             )
+(46, 31)            Separator           ;                             ;
+(47, 9)             Identifier          counter                       counter
+(47, 17)            Operator            :=                            :=
+(47, 20)            Constant            1                             1
+(47, 21)            Separator           ;                             ;
+(48, 7)             Reserved word       end                           end
+(48, 10)            Separator           ;                             ;
+(49, 5)             Reserved word       if                            if
+(49, 8)             Identifier          counter                       counter
+(49, 16)            Operator            =                             =
+(49, 18)            Constant            1                             1
+(49, 20)            Reserved word       then                          then
+(49, 25)            Reserved word       continue                      continue
+(49, 33)            Separator           ;                             ;
+(50, 5)             Identifier          schools                       schools
+(50, 12)            Separator           [                             [
+(50, 13)            Identifier          schoolCount                   schoolcount
+(50, 24)            Separator           ]                             ]
+(50, 25)            Operator            .                             .
+(50, 26)            Identifier          fname                         fname
+(50, 32)            Operator            :=                            :=
+(50, 35)            Identifier          name                          name
+(50, 39)            Separator           ;                             ;
+(51, 5)             Identifier          schools                       schools
+(51, 12)            Separator           [                             [
+(51, 13)            Identifier          schoolCount                   schoolcount
+(51, 24)            Separator           ]                             ]
+(51, 25)            Operator            .                             .
+(51, 26)            Identifier          fnum                          fnum
+(51, 31)            Operator            :=                            :=
+(51, 34)            Identifier          num                           num
+(51, 37)            Separator           ;                             ;
+(52, 5)             Identifier          schools                       schools
+(52, 12)            Separator           [                             [
+(52, 13)            Identifier          schoolCount                   schoolcount
+(52, 24)            Separator           ]                             ]
+(52, 25)            Operator            .                             .
+(52, 26)            Identifier          fcount                        fcount
+(52, 33)            Operator            :=                            :=
+(52, 36)            Constant            1                             1
+(52, 37)            Separator           ;                             ;
+(53, 5)             Identifier          inc                           inc
+(53, 8)             Separator           (                             (
+(53, 9)             Identifier          schoolCount                   schoolcount
+(53, 20)            Separator           )                             )
+(53, 21)            Separator           ;                             ;
+(54, 5)             Identifier          setlength                     setlength
+(54, 14)            Separator           (                             (
+(54, 15)            Identifier          schools                       schools
+(54, 22)            Separator           ,                             ,
+(54, 24)            Identifier          schoolCount                   schoolcount
+(54, 35)            Operator            +                             +
+(54, 36)            Constant            1                             1
+(54, 37)            Separator           )                             )
+(54, 38)            Separator           ;                             ;
+(55, 3)             Reserved word       end                           end
+(55, 6)             Separator           ;                             ;
+(57, 3)             Identifier          close                         close
+(57, 8)             Separator           (                             (
+(57, 9)             Identifier          f                             f
+(57, 10)            Separator           )                             )
+(57, 11)            Separator           ;                             ;
+(58, 3)             Identifier          assign                        assign
+(58, 9)             Separator           (                             (
+(58, 10)            Identifier          f                             f
+(58, 11)            Separator           ,                             ,
+(58, 13)            Constant            'schools.out'                 schools.out
+(58, 26)            Separator           )                             )
+(58, 27)            Separator           ;                             ;
+(59, 3)             Identifier          rewrite                       rewrite
+(59, 10)            Separator           (                             (
+(59, 11)            Identifier          f                             f
+(59, 12)            Separator           )                             )
+(59, 13)            Separator           ;                             ;
+(61, 3)             Identifier          counter                       counter
+(61, 11)            Operator            :=                            :=
+(61, 14)            Constant            0                             0
+(61, 15)            Separator           ;                             ;
+(62, 3)             Identifier          setlength                     setlength
+(62, 12)            Separator           (                             (
+(62, 13)            Identifier          resSchools                    resschools
+(62, 23)            Separator           ,                             ,
+(62, 25)            Identifier          schoolCount                   schoolcount
+(62, 36)            Separator           )                             )
+(62, 37)            Separator           ;                             ;
+(63, 3)             Reserved word       for                           for
+(63, 7)             Identifier          i                             i
+(63, 9)             Operator            :=                            :=
+(63, 12)            Constant            0                             0
+(63, 14)            Reserved word       to                            to
+(63, 17)            Identifier          schoolCount                   schoolcount
+(63, 28)            Operator            -                             -
+(63, 29)            Constant            1                             1
+(63, 31)            Reserved word       do                            do
+(64, 5)             Reserved word       if                            if
+(64, 8)             Identifier          schools                       schools
+(64, 15)            Separator           [                             [
+(64, 16)            Identifier          i                             i
+(64, 17)            Separator           ]                             ]
+(64, 18)            Operator            .                             .
+(64, 19)            Identifier          fcount                        fcount
+(64, 26)            Operator            <                             <
+(64, 28)            Constant            6                             6
+(64, 30)            Reserved word       then                          then
+(65, 5)             Reserved word       begin                         begin
+(66, 7)             Identifier          inc                           inc
+(66, 10)            Separator           (                             (
+(66, 11)            Identifier          counter                       counter
+(66, 18)            Separator           )                             )
+(66, 19)            Separator           ;                             ;
+(67, 7)             Identifier          resSchools                    resschools
+(67, 17)            Separator           [                             [
+(67, 18)            Identifier          counter                       counter
+(67, 25)            Operator            -                             -
+(67, 26)            Constant            1                             1
+(67, 27)            Separator           ]                             ]
+(67, 29)            Operator            :=                            :=
+(67, 32)            Identifier          schools                       schools
+(67, 39)            Separator           [                             [
+(67, 40)            Identifier          i                             i
+(67, 41)            Separator           ]                             ]
+(67, 42)            Operator            .                             .
+(67, 43)            Identifier          fnum                          fnum
+(67, 47)            Separator           ;                             ;
+(68, 5)             Reserved word       end                           end
+(68, 8)             Separator           ;                             ;
+(69, 3)             Identifier          setlength                     setlength
+(69, 12)            Separator           (                             (
+(69, 13)            Identifier          resSchools                    resschools
+(69, 23)            Separator           ,                             ,
+(69, 25)            Identifier          counter                       counter
+(69, 32)            Separator           )                             )
+(69, 33)            Separator           ;                             ;
+(70, 3)             Identifier          writeln                       writeln
+(70, 10)            Separator           (                             (
+(70, 11)            Identifier          f                             f
+(70, 12)            Separator           ,                             ,
+(70, 14)            Identifier          counter                       counter
+(70, 21)            Separator           )                             )
+(70, 22)            Separator           ;                             ;
+(71, 3)             Reserved word       for                           for
+(71, 7)             Identifier          i                             i
+(71, 9)             Operator            :=                            :=
+(71, 12)            Constant            0                             0
+(71, 14)            Reserved word       to                            to
+(71, 17)            Identifier          counter                       counter
+(71, 24)            Operator            -                             -
+(71, 25)            Constant            1                             1
+(71, 27)            Reserved word       do                            do
+(72, 5)             Identifier          writeln                       writeln
+(72, 12)            Separator           (                             (
+(72, 13)            Identifier          f                             f
+(72, 14)            Separator           ,                             ,
+(72, 16)            Identifier          resSchools                    resschools
+(72, 26)            Separator           [                             [
+(72, 27)            Identifier          i                             i
+(72, 28)            Separator           ]                             ]
+(72, 29)            Separator           )                             )
+(72, 30)            Separator           ;                             ;
+(74, 3)             Identifier          close                         close
+(74, 8)             Separator           (                             (
+(74, 9)             Identifier          f                             f
+(74, 10)            Separator           )                             )
+(74, 11)            Separator           ;                             ;
+(75, 1)             Reserved word       end                           end
+(75, 4)             Operator            .                             .
+(76, 1)             Constant            EOF                           EOF

@@ -1,0 +1,124 @@
+type
+  TSnake = record
+    x: Integer;
+    y: Integer;
+  end;
+ 
+var
+  fin, fout: text;
+  n, w, h: Integer;
+  i, j, k: Integer;
+  curLen: Integer;
+  path: String;
+  field: Array of Array of Char;
+  snake: Array of TSnake;
+ 
+procedure traceMove(y, x: Integer);
+var
+  i: Integer;
+begin
+  if (x = w) or (((y = h))) or (x = -1) or (y = -1) then
+  begin
+    curLen := -1;
+    exit;
+  end;
+  for i := 0 to curLen do
+    if (
+    		x = snake[i].
+
+    	x
+    ) and (y                                              = snake[i].y) then
+    begin
+
+      curLen := -1;
+      exit;
+    																					end;
+ 
+  for i := curLen downto 1 do
+  begin
+    snake[i].x := snake[i-1].x;
+    snake[i].y := snake[i-1].y;
+  end;
+  snake[0].x := x;
+  snake[0].y := y;
+  if field[y, x] = '*' then
+  begin
+    field[y, x] := '.';
+    inc(curLen);
+    setLength(snake, curLen+1);
+  												  snake[curLen].x := x;
+    snake[curLen].y := y;
+  end;
+end;
+ 
+function move():Integer;
+var
+  i: Integer;
+begin
+  for i := 1 to length(path) do
+  begin
+
+
+
+
+
+
+
+
+
+
+
+    if curLen = -1 then exit(-1);
+    case path[i] of
+      'U': traceMove(snake[0].y - 1, snake[0].x);
+                                                                      'D': traceMove(snake[0].y + 1, snake[0].x);
+      'L': traceMove(snake[0].y, snake[0].x - 1);
+      'R': traceMove(snake[0].y, snake[0].x + 1);
+    end;
+  end;
+  exit(curLen);
+end;
+ 
+begin
+  assign(fin, 'input.txt');
+  assign(fout , 'output.txt');
+  reset(fin);
+  rewrite(fout);
+  readLn(fin, n);
+ 
+  for i := 1 to n do
+  begin
+    curLen := 0;
+    setLength(snake, 1);
+    readLn(fin, w, h);
+    setLength(field, h, w);
+    for j := 0 to h-1 do
+    begin
+      for k := 0 to w-1 do
+      begin
+        read(fin, field[j, k]);
+        if field[j, 
+
+
+  k] = '#' then
+        begin
+          field[j, k] := '.';
+          snake[0].y := j;
+          snake[0].x := 
+
+          k
+
+          ;
+
+
+        end;
+      end;
+      readLn(																	fin);
+    end;
+    readLn(fin, path);
+    writeLn(fout, move);
+    setLength(field, 0           , 0);
+  end;
+  close(fin);
+  close(fout);
+end.

@@ -1,0 +1,12 @@
+(1, 1)              Constant            ''                            
+(1, 3)              Separator           ;                             ;
+(1, 4)              Constant            ''                            
+(2, 1)              Constant            '123'                         123
+(3, 1)              Constant            '~!@#$%^&*()_+'               ~!@#$%^&*()_+
+(3, 16)             Separator           ;                             ;
+(3, 17)             Constant            '\n\t\r'                      \n\t\r
+(3, 26)             Separator           ;                             ;
+(3, 28)             Constant            ''''''''                      '''
+(4, 1)              Constant            'dasd dsa dsa123 51 ;d ;'     dasd dsa dsa123 51 ;d ;
+(4, 26)             Separator           ;                             ;
+(5, 1)              Constant            EOF                           EOF

@@ -1,0 +1,75 @@
+uses
+  sysutils;
+ 
+type
+  TSchool = record
+    fname: String;
+    fnum: String;
+    fcount: Integer;
+  end;
+ 
+var
+  schools: Array of TSchool;
+  resSchools: Array of String;
+  nameCount, schoolCount, i, j: Integer;
+  counter: Integer;
+  name, num: String;
+  f: text;
+ 
+function search(var anum, aname: string): string;
+var
+  i: integer;
+begin
+  for i := 1 to length(aname) do
+    if aname[i] in ['0'..'9'] then anum += aname[i];
+  result := anum;
+end;
+ 
+begin
+  assign(f, 'schools.in');
+  reset(f);
+  readln(f, nameCount);
+  schoolCount := 0;
+  setlength(schools, schoolCount+1);
+ 
+  for i := 0 to nameCount-1 do
+  begin
+    counter := 0;
+    num := '';
+    readln(f, name);
+    num := search(num, name);
+    for j := 0 to schoolCount do
+      if num = schools[j].fnum then
+      begin
+        schools[j].fnum := num;
+        schools[j].fname := name;
+        inc(schools[j].fcount);
+        counter := 1;
+      end;
+    if counter = 1 then continue;
+    schools[schoolCount].fname := name;
+    schools[schoolCount].fnum := num;
+    schools[schoolCount].fcount := 1;
+    inc(schoolCount);
+    setlength(schools, schoolCount+1);
+  end;
+ 
+  close(f);
+  assign(f, 'schools.out');
+  rewrite(f);
+ 
+  counter := 0;
+  setlength(resSchools, schoolCount);
+  for i := 0 to schoolCount-1 do
+    if schools[i].fcount < 6 then
+    begin
+      inc(counter);
+      resSchools[counter-1] := schools[i].fnum;
+    end;
+  setlength(resSchools, counter);
+  writeln(f, counter);
+  for i := 0 to counter-1 do
+    writeln(f, resSchools[i]);
+ 
+  close(f);
+end.

@@ -1,0 +1,597 @@
+(1, 1)              Reserved word       type                          type
+(2, 3)              Identifier          TSnake                        tsnake
+(2, 10)             Operator            =                             =
+(2, 12)             Reserved word       record                        record
+(3, 5)              Identifier          x                             x
+(3, 6)              Separator           :                             :
+(3, 8)              Identifier          Integer                       integer
+(3, 15)             Separator           ;                             ;
+(4, 5)              Identifier          y                             y
+(4, 6)              Separator           :                             :
+(4, 8)              Identifier          Integer                       integer
+(4, 15)             Separator           ;                             ;
+(5, 3)              Reserved word       end                           end
+(5, 6)              Separator           ;                             ;
+(7, 1)              Reserved word       var                           var
+(8, 3)              Identifier          fin                           fin
+(8, 6)              Separator           ,                             ,
+(8, 8)              Identifier          fout                          fout
+(8, 12)             Separator           :                             :
+(8, 14)             Identifier          text                          text
+(8, 18)             Separator           ;                             ;
+(9, 3)              Identifier          n                             n
+(9, 4)              Separator           ,                             ,
+(9, 6)              Identifier          w                             w
+(9, 7)              Separator           ,                             ,
+(9, 9)              Identifier          h                             h
+(9, 10)             Separator           :                             :
+(9, 12)             Identifier          Integer                       integer
+(9, 19)             Separator           ;                             ;
+(10, 3)             Identifier          i                             i
+(10, 4)             Separator           ,                             ,
+(10, 6)             Identifier          j                             j
+(10, 7)             Separator           ,                             ,
+(10, 9)             Identifier          k                             k
+(10, 10)            Separator           :                             :
+(10, 12)            Identifier          Integer                       integer
+(10, 19)            Separator           ;                             ;
+(11, 3)             Identifier          curLen                        curlen
+(11, 9)             Separator           :                             :
+(11, 11)            Identifier          Integer                       integer
+(11, 18)            Separator           ;                             ;
+(12, 3)             Identifier          path                          path
+(12, 7)             Separator           :                             :
+(12, 9)             Reserved word       String                        string
+(12, 15)            Separator           ;                             ;
+(13, 3)             Identifier          field                         field
+(13, 8)             Separator           :                             :
+(13, 10)            Reserved word       Array                         array
+(13, 16)            Reserved word       of                            of
+(13, 19)            Reserved word       Array                         array
+(13, 25)            Reserved word       of                            of
+(13, 28)            Identifier          Char                          char
+(13, 32)            Separator           ;                             ;
+(14, 3)             Identifier          snake                         snake
+(14, 8)             Separator           :                             :
+(14, 10)            Reserved word       Array                         array
+(14, 16)            Reserved word       of                            of
+(14, 19)            Identifier          TSnake                        tsnake
+(14, 25)            Separator           ;                             ;
+(16, 1)             Reserved word       procedure                     procedure
+(16, 11)            Identifier          traceMove                     tracemove
+(16, 20)            Separator           (                             (
+(16, 21)            Identifier          y                             y
+(16, 22)            Separator           ,                             ,
+(16, 24)            Identifier          x                             x
+(16, 25)            Separator           :                             :
+(16, 27)            Identifier          Integer                       integer
+(16, 34)            Separator           )                             )
+(16, 35)            Separator           ;                             ;
+(17, 1)             Reserved word       var                           var
+(18, 3)             Identifier          i                             i
+(18, 4)             Separator           :                             :
+(18, 6)             Identifier          Integer                       integer
+(18, 13)            Separator           ;                             ;
+(19, 1)             Reserved word       begin                         begin
+(20, 3)             Reserved word       if                            if
+(20, 6)             Separator           (                             (
+(20, 7)             Identifier          x                             x
+(20, 9)             Operator            =                             =
+(20, 11)            Identifier          w                             w
+(20, 12)            Separator           )                             )
+(20, 14)            Identifier          or                            or
+(20, 17)            Separator           (                             (
+(20, 18)            Separator           (                             (
+(20, 19)            Separator           (                             (
+(20, 20)            Identifier          y                             y
+(20, 22)            Operator            =                             =
+(20, 24)            Identifier          h                             h
+(20, 25)            Separator           )                             )
+(20, 26)            Separator           )                             )
+(20, 27)            Separator           )                             )
+(20, 29)            Identifier          or                            or
+(20, 32)            Separator           (                             (
+(20, 33)            Identifier          x                             x
+(20, 35)            Operator            =                             =
+(20, 37)            Operator            -                             -
+(20, 38)            Constant            1                             1
+(20, 39)            Separator           )                             )
+(20, 41)            Identifier          or                            or
+(20, 44)            Separator           (                             (
+(20, 45)            Identifier          y                             y
+(20, 47)            Operator            =                             =
+(20, 49)            Operator            -                             -
+(20, 50)            Constant            1                             1
+(20, 51)            Separator           )                             )
+(20, 53)            Reserved word       then                          then
+(21, 3)             Reserved word       begin                         begin
+(22, 5)             Identifier          curLen                        curlen
+(22, 12)            Operator            :=                            :=
+(22, 15)            Operator            -                             -
+(22, 16)            Constant            1                             1
+(22, 17)            Separator           ;                             ;
+(23, 5)             Identifier          exit                          exit
+(23, 9)             Separator           ;                             ;
+(24, 3)             Reserved word       end                           end
+(24, 6)             Separator           ;                             ;
+(25, 3)             Reserved word       for                           for
+(25, 7)             Identifier          i                             i
+(25, 9)             Operator            :=                            :=
+(25, 12)            Constant            0                             0
+(25, 14)            Reserved word       to                            to
+(25, 17)            Identifier          curLen                        curlen
+(25, 24)            Reserved word       do                            do
+(26, 5)             Reserved word       if                            if
+(26, 8)             Separator           (                             (
+(27, 7)             Identifier          x                             x
+(27, 9)             Operator            =                             =
+(27, 11)            Identifier          snake                         snake
+(27, 16)            Separator           [                             [
+(27, 17)            Identifier          i                             i
+(27, 18)            Separator           ]                             ]
+(27, 19)            Operator            .                             .
+(29, 6)             Identifier          x                             x
+(30, 5)             Separator           )                             )
+(30, 7)             Operator            and                           and
+(30, 11)            Separator           (                             (
+(30, 12)            Identifier          y                             y
+(30, 59)            Operator            =                             =
+(30, 61)            Identifier          snake                         snake
+(30, 66)            Separator           [                             [
+(30, 67)            Identifier          i                             i
+(30, 68)            Separator           ]                             ]
+(30, 69)            Operator            .                             .
+(30, 70)            Identifier          y                             y
+(30, 71)            Separator           )                             )
+(30, 73)            Reserved word       then                          then
+(31, 5)             Reserved word       begin                         begin
+(33, 7)             Identifier          curLen                        curlen
+(33, 14)            Operator            :=                            :=
+(33, 17)            Operator            -                             -
+(33, 18)            Constant            1                             1
+(33, 19)            Separator           ;                             ;
+(34, 7)             Identifier          exit                          exit
+(34, 11)            Separator           ;                             ;
+(35, 26)            Reserved word       end                           end
+(35, 29)            Separator           ;                             ;
+(37, 3)             Reserved word       for                           for
+(37, 7)             Identifier          i                             i
+(37, 9)             Operator            :=                            :=
+(37, 12)            Identifier          curLen                        curlen
+(37, 19)            Reserved word       downto                        downto
+(37, 26)            Constant            1                             1
+(37, 28)            Reserved word       do                            do
+(38, 3)             Reserved word       begin                         begin
+(39, 5)             Identifier          snake                         snake
+(39, 10)            Separator           [                             [
+(39, 11)            Identifier          i                             i
+(39, 12)            Separator           ]                             ]
+(39, 13)            Operator            .                             .
+(39, 14)            Identifier          x                             x
+(39, 16)            Operator            :=                            :=
+(39, 19)            Identifier          snake                         snake
+(39, 24)            Separator           [                             [
+(39, 25)            Identifier          i                             i
+(39, 26)            Operator            -                             -
+(39, 27)            Constant            1                             1
+(39, 28)            Separator           ]                             ]
+(39, 29)            Operator            .                             .
+(39, 30)            Identifier          x                             x
+(39, 31)            Separator           ;                             ;
+(40, 5)             Identifier          snake                         snake
+(40, 10)            Separator           [                             [
+(40, 11)            Identifier          i                             i
+(40, 12)            Separator           ]                             ]
+(40, 13)            Operator            .                             .
+(40, 14)            Identifier          y                             y
+(40, 16)            Operator            :=                            :=
+(40, 19)            Identifier          snake                         snake
+(40, 24)            Separator           [                             [
+(40, 25)            Identifier          i                             i
+(40, 26)            Operator            -                             -
+(40, 27)            Constant            1                             1
+(40, 28)            Separator           ]                             ]
+(40, 29)            Operator            .                             .
+(40, 30)            Identifier          y                             y
+(40, 31)            Separator           ;                             ;
+(41, 3)             Reserved word       end                           end
+(41, 6)             Separator           ;                             ;
+(42, 3)             Identifier          snake                         snake
+(42, 8)             Separator           [                             [
+(42, 9)             Constant            0                             0
+(42, 10)            Separator           ]                             ]
+(42, 11)            Operator            .                             .
+(42, 12)            Identifier          x                             x
+(42, 14)            Operator            :=                            :=
+(42, 17)            Identifier          x                             x
+(42, 18)            Separator           ;                             ;
+(43, 3)             Identifier          snake                         snake
+(43, 8)             Separator           [                             [
+(43, 9)             Constant            0                             0
+(43, 10)            Separator           ]                             ]
+(43, 11)            Operator            .                             .
+(43, 12)            Identifier          y                             y
+(43, 14)            Operator            :=                            :=
+(43, 17)            Identifier          y                             y
+(43, 18)            Separator           ;                             ;
+(44, 3)             Reserved word       if                            if
+(44, 6)             Identifier          field                         field
+(44, 11)            Separator           [                             [
+(44, 12)            Identifier          y                             y
+(44, 13)            Separator           ,                             ,
+(44, 15)            Identifier          x                             x
+(44, 16)            Separator           ]                             ]
+(44, 18)            Operator            =                             =
+(44, 20)            Constant            '*'                           *
+(44, 24)            Reserved word       then                          then
+(45, 3)             Reserved word       begin                         begin
+(46, 5)             Identifier          field                         field
+(46, 10)            Separator           [                             [
+(46, 11)            Identifier          y                             y
+(46, 12)            Separator           ,                             ,
+(46, 14)            Identifier          x                             x
+(46, 15)            Separator           ]                             ]
+(46, 17)            Operator            :=                            :=
+(46, 20)            Constant            '.'                           .
+(46, 23)            Separator           ;                             ;
+(47, 5)             Identifier          inc                           inc
+(47, 8)             Separator           (                             (
+(47, 9)             Identifier          curLen                        curlen
+(47, 15)            Separator           )                             )
+(47, 16)            Separator           ;                             ;
+(48, 5)             Identifier          setLength                     setlength
+(48, 14)            Separator           (                             (
+(48, 15)            Identifier          snake                         snake
+(48, 20)            Separator           ,                             ,
+(48, 22)            Identifier          curLen                        curlen
+(48, 28)            Operator            +                             +
+(48, 29)            Constant            1                             1
+(48, 30)            Separator           )                             )
+(48, 31)            Separator           ;                             ;
+(49, 17)            Identifier          snake                         snake
+(49, 22)            Separator           [                             [
+(49, 23)            Identifier          curLen                        curlen
+(49, 29)            Separator           ]                             ]
+(49, 30)            Operator            .                             .
+(49, 31)            Identifier          x                             x
+(49, 33)            Operator            :=                            :=
+(49, 36)            Identifier          x                             x
+(49, 37)            Separator           ;                             ;
+(50, 5)             Identifier          snake                         snake
+(50, 10)            Separator           [                             [
+(50, 11)            Identifier          curLen                        curlen
+(50, 17)            Separator           ]                             ]
+(50, 18)            Operator            .                             .
+(50, 19)            Identifier          y                             y
+(50, 21)            Operator            :=                            :=
+(50, 24)            Identifier          y                             y
+(50, 25)            Separator           ;                             ;
+(51, 3)             Reserved word       end                           end
+(51, 6)             Separator           ;                             ;
+(52, 1)             Reserved word       end                           end
+(52, 4)             Separator           ;                             ;
+(54, 1)             Reserved word       function                      function
+(54, 10)            Identifier          move                          move
+(54, 14)            Separator           (                             (
+(54, 15)            Separator           )                             )
+(54, 16)            Separator           :                             :
+(54, 17)            Identifier          Integer                       integer
+(54, 24)            Separator           ;                             ;
+(55, 1)             Reserved word       var                           var
+(56, 3)             Identifier          i                             i
+(56, 4)             Separator           :                             :
+(56, 6)             Identifier          Integer                       integer
+(56, 13)            Separator           ;                             ;
+(57, 1)             Reserved word       begin                         begin
+(58, 3)             Reserved word       for                           for
+(58, 7)             Identifier          i                             i
+(58, 9)             Operator            :=                            :=
+(58, 12)            Constant            1                             1
+(58, 14)            Reserved word       to                            to
+(58, 17)            Identifier          length                        length
+(58, 23)            Separator           (                             (
+(58, 24)            Identifier          path                          path
+(58, 28)            Separator           )                             )
+(58, 30)            Reserved word       do                            do
+(59, 3)             Reserved word       begin                         begin
+(71, 5)             Reserved word       if                            if
+(71, 8)             Identifier          curLen                        curlen
+(71, 15)            Operator            =                             =
+(71, 17)            Operator            -                             -
+(71, 18)            Constant            1                             1
+(71, 20)            Reserved word       then                          then
+(71, 25)            Identifier          exit                          exit
+(71, 29)            Separator           (                             (
+(71, 30)            Operator            -                             -
+(71, 31)            Constant            1                             1
+(71, 32)            Separator           )                             )
+(71, 33)            Separator           ;                             ;
+(72, 5)             Reserved word       case                          case
+(72, 10)            Identifier          path                          path
+(72, 14)            Separator           [                             [
+(72, 15)            Identifier          i                             i
+(72, 16)            Separator           ]                             ]
+(72, 18)            Reserved word       of                            of
+(73, 7)             Constant            'U'                           U
+(73, 10)            Separator           :                             :
+(73, 12)            Identifier          traceMove                     tracemove
+(73, 21)            Separator           (                             (
+(73, 22)            Identifier          snake                         snake
+(73, 27)            Separator           [                             [
+(73, 28)            Constant            0                             0
+(73, 29)            Separator           ]                             ]
+(73, 30)            Operator            .                             .
+(73, 31)            Identifier          y                             y
+(73, 33)            Operator            -                             -
+(73, 35)            Constant            1                             1
+(73, 36)            Separator           ,                             ,
+(73, 38)            Identifier          snake                         snake
+(73, 43)            Separator           [                             [
+(73, 44)            Constant            0                             0
+(73, 45)            Separator           ]                             ]
+(73, 46)            Operator            .                             .
+(73, 47)            Identifier          x                             x
+(73, 48)            Separator           )                             )
+(73, 49)            Separator           ;                             ;
+(74, 71)            Constant            'D'                           D
+(74, 74)            Separator           :                             :
+(74, 76)            Identifier          traceMove                     tracemove
+(74, 85)            Separator           (                             (
+(74, 86)            Identifier          snake                         snake
+(74, 91)            Separator           [                             [
+(74, 92)            Constant            0                             0
+(74, 93)            Separator           ]                             ]
+(74, 94)            Operator            .                             .
+(74, 95)            Identifier          y                             y
+(74, 97)            Operator            +                             +
+(74, 99)            Constant            1                             1
+(74, 100)           Separator           ,                             ,
+(74, 102)           Identifier          snake                         snake
+(74, 107)           Separator           [                             [
+(74, 108)           Constant            0                             0
+(74, 109)           Separator           ]                             ]
+(74, 110)           Operator            .                             .
+(74, 111)           Identifier          x                             x
+(74, 112)           Separator           )                             )
+(74, 113)           Separator           ;                             ;
+(75, 7)             Constant            'L'                           L
+(75, 10)            Separator           :                             :
+(75, 12)            Identifier          traceMove                     tracemove
+(75, 21)            Separator           (                             (
+(75, 22)            Identifier          snake                         snake
+(75, 27)            Separator           [                             [
+(75, 28)            Constant            0                             0
+(75, 29)            Separator           ]                             ]
+(75, 30)            Operator            .                             .
+(75, 31)            Identifier          y                             y
+(75, 32)            Separator           ,                             ,
+(75, 34)            Identifier          snake                         snake
+(75, 39)            Separator           [                             [
+(75, 40)            Constant            0                             0
+(75, 41)            Separator           ]                             ]
+(75, 42)            Operator            .                             .
+(75, 43)            Identifier          x                             x
+(75, 45)            Operator            -                             -
+(75, 47)            Constant            1                             1
+(75, 48)            Separator           )                             )
+(75, 49)            Separator           ;                             ;
+(76, 7)             Constant            'R'                           R
+(76, 10)            Separator           :                             :
+(76, 12)            Identifier          traceMove                     tracemove
+(76, 21)            Separator           (                             (
+(76, 22)            Identifier          snake                         snake
+(76, 27)            Separator           [                             [
+(76, 28)            Constant            0                             0
+(76, 29)            Separator           ]                             ]
+(76, 30)            Operator            .                             .
+(76, 31)            Identifier          y                             y
+(76, 32)            Separator           ,                             ,
+(76, 34)            Identifier          snake                         snake
+(76, 39)            Separator           [                             [
+(76, 40)            Constant            0                             0
+(76, 41)            Separator           ]                             ]
+(76, 42)            Operator            .                             .
+(76, 43)            Identifier          x                             x
+(76, 45)            Operator            +                             +
+(76, 47)            Constant            1                             1
+(76, 48)            Separator           )                             )
+(76, 49)            Separator           ;                             ;
+(77, 5)             Reserved word       end                           end
+(77, 8)             Separator           ;                             ;
+(78, 3)             Reserved word       end                           end
+(78, 6)             Separator           ;                             ;
+(79, 3)             Identifier          exit                          exit
+(79, 7)             Separator           (                             (
+(79, 8)             Identifier          curLen                        curlen
+(79, 14)            Separator           )                             )
+(79, 15)            Separator           ;                             ;
+(80, 1)             Reserved word       end                           end
+(80, 4)             Separator           ;                             ;
+(82, 1)             Reserved word       begin                         begin
+(83, 3)             Identifier          assign                        assign
+(83, 9)             Separator           (                             (
+(83, 10)            Identifier          fin                           fin
+(83, 13)            Separator           ,                             ,
+(83, 15)            Constant            'input.txt'                   input.txt
+(83, 26)            Separator           )                             )
+(83, 27)            Separator           ;                             ;
+(84, 3)             Identifier          assign                        assign
+(84, 9)             Separator           (                             (
+(84, 10)            Identifier          fout                          fout
+(84, 15)            Separator           ,                             ,
+(84, 17)            Constant            'output.txt'                  output.txt
+(84, 29)            Separator           )                             )
+(84, 30)            Separator           ;                             ;
+(85, 3)             Identifier          reset                         reset
+(85, 8)             Separator           (                             (
+(85, 9)             Identifier          fin                           fin
+(85, 12)            Separator           )                             )
+(85, 13)            Separator           ;                             ;
+(86, 3)             Identifier          rewrite                       rewrite
+(86, 10)            Separator           (                             (
+(86, 11)            Identifier          fout                          fout
+(86, 15)            Separator           )                             )
+(86, 16)            Separator           ;                             ;
+(87, 3)             Identifier          readLn                        readln
+(87, 9)             Separator           (                             (
+(87, 10)            Identifier          fin                           fin
+(87, 13)            Separator           ,                             ,
+(87, 15)            Identifier          n                             n
+(87, 16)            Separator           )                             )
+(87, 17)            Separator           ;                             ;
+(89, 3)             Reserved word       for                           for
+(89, 7)             Identifier          i                             i
+(89, 9)             Operator            :=                            :=
+(89, 12)            Constant            1                             1
+(89, 14)            Reserved word       to                            to
+(89, 17)            Identifier          n                             n
+(89, 19)            Reserved word       do                            do
+(90, 3)             Reserved word       begin                         begin
+(91, 5)             Identifier          curLen                        curlen
+(91, 12)            Operator            :=                            :=
+(91, 15)            Constant            0                             0
+(91, 16)            Separator           ;                             ;
+(92, 5)             Identifier          setLength                     setlength
+(92, 14)            Separator           (                             (
+(92, 15)            Identifier          snake                         snake
+(92, 20)            Separator           ,                             ,
+(92, 22)            Constant            1                             1
+(92, 23)            Separator           )                             )
+(92, 24)            Separator           ;                             ;
+(93, 5)             Identifier          readLn                        readln
+(93, 11)            Separator           (                             (
+(93, 12)            Identifier          fin                           fin
+(93, 15)            Separator           ,                             ,
+(93, 17)            Identifier          w                             w
+(93, 18)            Separator           ,                             ,
+(93, 20)            Identifier          h                             h
+(93, 21)            Separator           )                             )
+(93, 22)            Separator           ;                             ;
+(94, 5)             Identifier          setLength                     setlength
+(94, 14)            Separator           (                             (
+(94, 15)            Identifier          field                         field
+(94, 20)            Separator           ,                             ,
+(94, 22)            Identifier          h                             h
+(94, 23)            Separator           ,                             ,
+(94, 25)            Identifier          w                             w
+(94, 26)            Separator           )                             )
+(94, 27)            Separator           ;                             ;
+(95, 5)             Reserved word       for                           for
+(95, 9)             Identifier          j                             j
+(95, 11)            Operator            :=                            :=
+(95, 14)            Constant            0                             0
+(95, 16)            Reserved word       to                            to
+(95, 19)            Identifier          h                             h
+(95, 20)            Operator            -                             -
+(95, 21)            Constant            1                             1
+(95, 23)            Reserved word       do                            do
+(96, 5)             Reserved word       begin                         begin
+(97, 7)             Reserved word       for                           for
+(97, 11)            Identifier          k                             k
+(97, 13)            Operator            :=                            :=
+(97, 16)            Constant            0                             0
+(97, 18)            Reserved word       to                            to
+(97, 21)            Identifier          w                             w
+(97, 22)            Operator            -                             -
+(97, 23)            Constant            1                             1
+(97, 25)            Reserved word       do                            do
+(98, 7)             Reserved word       begin                         begin
+(99, 9)             Identifier          read                          read
+(99, 13)            Separator           (                             (
+(99, 14)            Identifier          fin                           fin
+(99, 17)            Separator           ,                             ,
+(99, 19)            Identifier          field                         field
+(99, 24)            Separator           [                             [
+(99, 25)            Identifier          j                             j
+(99, 26)            Separator           ,                             ,
+(99, 28)            Identifier          k                             k
+(99, 29)            Separator           ]                             ]
+(99, 30)            Separator           )                             )
+(99, 31)            Separator           ;                             ;
+(100, 9)            Reserved word       if                            if
+(100, 12)           Identifier          field                         field
+(100, 17)           Separator           [                             [
+(100, 18)           Identifier          j                             j
+(100, 19)           Separator           ,                             ,
+(103, 3)            Identifier          k                             k
+(103, 4)            Separator           ]                             ]
+(103, 6)            Operator            =                             =
+(103, 8)            Constant            '#'                           #
+(103, 12)           Reserved word       then                          then
+(104, 9)            Reserved word       begin                         begin
+(105, 11)           Identifier          field                         field
+(105, 16)           Separator           [                             [
+(105, 17)           Identifier          j                             j
+(105, 18)           Separator           ,                             ,
+(105, 20)           Identifier          k                             k
+(105, 21)           Separator           ]                             ]
+(105, 23)           Operator            :=                            :=
+(105, 26)           Constant            '.'                           .
+(105, 29)           Separator           ;                             ;
+(106, 11)           Identifier          snake                         snake
+(106, 16)           Separator           [                             [
+(106, 17)           Constant            0                             0
+(106, 18)           Separator           ]                             ]
+(106, 19)           Operator            .                             .
+(106, 20)           Identifier          y                             y
+(106, 22)           Operator            :=                            :=
+(106, 25)           Identifier          j                             j
+(106, 26)           Separator           ;                             ;
+(107, 11)           Identifier          snake                         snake
+(107, 16)           Separator           [                             [
+(107, 17)           Constant            0                             0
+(107, 18)           Separator           ]                             ]
+(107, 19)           Operator            .                             .
+(107, 20)           Identifier          x                             x
+(107, 22)           Operator            :=                            :=
+(109, 11)           Identifier          k                             k
+(111, 11)           Separator           ;                             ;
+(114, 9)            Reserved word       end                           end
+(114, 12)           Separator           ;                             ;
+(115, 7)            Reserved word       end                           end
+(115, 10)           Separator           ;                             ;
+(116, 7)            Identifier          readLn                        readln
+(116, 13)           Separator           (                             (
+(116, 31)           Identifier          fin                           fin
+(116, 34)           Separator           )                             )
+(116, 35)           Separator           ;                             ;
+(117, 5)            Reserved word       end                           end
+(117, 8)            Separator           ;                             ;
+(118, 5)            Identifier          readLn                        readln
+(118, 11)           Separator           (                             (
+(118, 12)           Identifier          fin                           fin
+(118, 15)           Separator           ,                             ,
+(118, 17)           Identifier          path                          path
+(118, 21)           Separator           )                             )
+(118, 22)           Separator           ;                             ;
+(119, 5)            Identifier          writeLn                       writeln
+(119, 12)           Separator           (                             (
+(119, 13)           Identifier          fout                          fout
+(119, 17)           Separator           ,                             ,
+(119, 19)           Identifier          move                          move
+(119, 23)           Separator           )                             )
+(119, 24)           Separator           ;                             ;
+(120, 5)            Identifier          setLength                     setlength
+(120, 14)           Separator           (                             (
+(120, 15)           Identifier          field                         field
+(120, 20)           Separator           ,                             ,
+(120, 22)           Constant            0                             0
+(120, 34)           Separator           ,                             ,
+(120, 36)           Constant            0                             0
+(120, 37)           Separator           )                             )
+(120, 38)           Separator           ;                             ;
+(121, 3)            Reserved word       end                           end
+(121, 6)            Separator           ;                             ;
+(122, 3)            Identifier          close                         close
+(122, 8)            Separator           (                             (
+(122, 9)            Identifier          fin                           fin
+(122, 12)           Separator           )                             )
+(122, 13)           Separator           ;                             ;
+(123, 3)            Identifier          close                         close
+(123, 8)            Separator           (                             (
+(123, 9)            Identifier          fout                          fout
+(123, 13)           Separator           )                             )
+(123, 14)           Separator           ;                             ;
+(124, 1)            Reserved word       end                           end
+(124, 4)            Operator            .                             .
+(125, 1)            Constant            EOF                           EOF

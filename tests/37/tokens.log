@@ -1,0 +1,157 @@
+(2, 1)              Reserved word       with                          with
+(2, 6)              Identifier          open                          open
+(2, 10)             Separator           (                             (
+(2, 11)             Constant            'FiniteAutomata.hpp'          FiniteAutomata.hpp
+(2, 31)             Separator           ,                             ,
+(2, 33)             Constant            'w'                           w
+(2, 36)             Separator           )                             )
+(2, 38)             Identifier          as                            as
+(2, 41)             Identifier          f                             f
+(2, 42)             Separator           :                             :
+(3, 2)              Identifier          print                         print
+(3, 7)              Separator           (                             (
+(3, 8)              Constant            '#pragma once'                #pragma once
+(3, 22)             Separator           ,                             ,
+(3, 24)             Reserved word       file                          file
+(3, 28)             Operator            =                             =
+(3, 29)             Identifier          f                             f
+(3, 30)             Separator           )                             )
+(4, 2)              Identifier          print                         print
+(4, 7)              Separator           (                             (
+(4, 8)              Constant            'namespace FiniteAutomata {'  namespace FiniteAutomata {
+(4, 36)             Separator           ,                             ,
+(4, 38)             Reserved word       file                          file
+(4, 42)             Operator            =                             =
+(4, 43)             Identifier          f                             f
+(4, 44)             Separator           )                             )
+(5, 2)              Identifier          print                         print
+(5, 7)              Separator           (                             (
+(5, 8)              Constant            '\tenum class States {'       \tenum class States {
+(5, 31)             Separator           ,                             ,
+(5, 33)             Reserved word       file                          file
+(5, 37)             Operator            =                             =
+(5, 38)             Identifier          f                             f
+(5, 39)             Separator           )                             )
+(6, 2)              Reserved word       for                           for
+(6, 6)              Identifier          x                             x
+(6, 8)              Reserved word       in                            in
+(6, 11)             Identifier          states                        states
+(6, 17)             Separator           :                             :
+(7, 3)              Identifier          print                         print
+(7, 8)              Separator           (                             (
+(7, 9)              Constant            '\t\t'                        \t\t
+(7, 16)             Operator            +                             +
+(7, 18)             Identifier          states                        states
+(7, 24)             Separator           [                             [
+(7, 25)             Identifier          x                             x
+(7, 26)             Separator           ]                             ]
+(7, 27)             Separator           ,                             ,
+(7, 29)             Reserved word       file                          file
+(7, 33)             Operator            =                             =
+(7, 34)             Identifier          f                             f
+(7, 35)             Separator           )                             )
+(8, 2)              Identifier          print                         print
+(8, 7)              Separator           (                             (
+(8, 8)              Constant            '\t};\n'                      \t};\n
+(8, 16)             Separator           ,                             ,
+(8, 18)             Reserved word       file                          file
+(8, 22)             Operator            =                             =
+(8, 23)             Identifier          f                             f
+(8, 24)             Separator           )                             )
+(9, 2)              Identifier          print                         print
+(9, 7)              Separator           (                             (
+(9, 8)              Constant            '\tstatic const States states[static_cast<unsigned int>(States::Amount)][128] = {'                                                    \tstatic const States states[static_cast<unsigned int>(States::Amount)][128] = {
+(9, 90)             Separator           ,                             ,
+(9, 92)             Reserved word       file                          file
+(9, 96)             Operator            =                             =
+(9, 97)             Identifier          f                             f
+(9, 98)             Separator           )                             )
+(11, 2)             Identifier          rdata                         rdata
+(11, 8)             Operator            =                             =
+(11, 10)            Separator           [                             [
+(11, 11)            Separator           ]                             ]
+(12, 2)             Reserved word       for                           for
+(12, 6)             Identifier          i                             i
+(12, 8)             Reserved word       in                            in
+(12, 11)            Identifier          data                          data
+(12, 15)            Separator           :                             :
+(13, 6)             Identifier          rdata                         rdata
+(13, 11)            Operator            .                             .
+(13, 12)            Identifier          append                        append
+(13, 18)            Separator           (                             (
+(13, 19)            Separator           [                             [
+(13, 20)            Constant            '********{'                   ********{
+(13, 31)            Separator           ]                             ]
+(13, 32)            Separator           )                             )
+(14, 6)             Reserved word       for                           for
+(14, 10)            Identifier          j                             j
+(14, 12)            Reserved word       in                            in
+(14, 15)            Identifier          i                             i
+(14, 16)            Separator           :                             :
+(15, 10)            Reserved word       if                            if
+(15, 13)            Identifier          j                             j
+(15, 15)            Operator            =                             =
+(15, 16)            Operator            =                             =
+(15, 18)            Constant            ' '                            
+(15, 21)            Separator           :                             :
+(16, 14)            Reserved word       continue                      continue
+(17, 10)            Identifier          rdata                         rdata
+(17, 15)            Separator           [                             [
+(17, 16)            Operator            -                             -
+(17, 17)            Constant            1                             1
+(17, 18)            Separator           ]                             ]
+(17, 19)            Operator            .                             .
+(17, 20)            Identifier          append                        append
+(17, 26)            Separator           (                             (
+(17, 27)            Constant            'States::'                    States::
+(17, 38)            Operator            +                             +
+(17, 40)            Identifier          states                        states
+(17, 46)            Separator           [                             [
+(17, 47)            Identifier          j                             j
+(17, 48)            Separator           ]                             ]
+(17, 49)            Separator           )                             )
+(18, 6)             Identifier          rdata                         rdata
+(18, 11)            Separator           [                             [
+(18, 12)            Operator            -                             -
+(18, 13)            Constant            1                             1
+(18, 14)            Separator           ]                             ]
+(18, 15)            Operator            .                             .
+(18, 16)            Identifier          append                        append
+(18, 22)            Separator           (                             (
+(18, 23)            Constant            '},'                          },
+(18, 27)            Separator           )                             )
+(20, 2)             Identifier          print                         print
+(20, 7)             Separator           (                             (
+(20, 8)             Identifier          tabulate                      tabulate
+(20, 16)            Separator           (                             (
+(20, 17)            Identifier          rdata                         rdata
+(20, 22)            Separator           ,                             ,
+(20, 24)            Identifier          tablefmt                      tablefmt
+(20, 32)            Operator            =                             =
+(20, 33)            Constant            'plain'                       plain
+(20, 40)            Separator           ,                             ,
+(20, 42)            Identifier          numalign                      numalign
+(20, 50)            Operator            =                             =
+(20, 51)            Constant            'None'                        None
+(20, 57)            Separator           )                             )
+(20, 58)            Operator            .                             .
+(20, 59)            Identifier          replace                       replace
+(20, 66)            Separator           (                             (
+(20, 67)            Constant            '*'                           *
+(20, 70)            Separator           ,                             ,
+(20, 72)            Constant            ' '                            
+(20, 75)            Separator           )                             )
+(20, 76)            Separator           ,                             ,
+(20, 78)            Reserved word       file                          file
+(20, 82)            Operator            =                             =
+(20, 83)            Identifier          f                             f
+(20, 84)            Separator           )                             )
+(21, 2)             Identifier          print                         print
+(21, 7)             Separator           (                             (
+(21, 8)             Constant            '\t};\n}'                     \t};\n}
+(21, 17)            Separator           ,                             ,
+(21, 19)            Reserved word       file                          file
+(21, 23)            Operator            =                             =
+(21, 24)            Identifier          f                             f
+(21, 25)            Separator           )                             )
+(21, 26)            Constant            EOF                           EOF
