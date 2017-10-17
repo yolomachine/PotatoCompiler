@@ -40,5 +40,6 @@ class Token {
         ValueType _vtype;
         Position_t _pos;
         std::string _raw;
-        static const Dict_t _reservedWords;
+        static const Dict_t _dict;
+        friend class LexicalAnalyzer;
 };

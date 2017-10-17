@@ -1,13 +1,45 @@
 #include "Token.hpp"
 
-const Token::Dict_t Token::_reservedWords = {
-    { "and",               Token::Class::Operator },
-    { "div",               Token::Class::Operator },
-    { "mod",               Token::Class::Operator },
-    { "not",               Token::Class::Operator },
-    { "shl",               Token::Class::Operator },
-    { "shr",               Token::Class::Operator },
-    { "xor",               Token::Class::Operator },
+const Token::Dict_t Token::_dict = {
+    { "+",                     Token::Class::Operator },
+    { "-",                     Token::Class::Operator },
+    { "*",                     Token::Class::Operator },
+    { "/",                     Token::Class::Operator },
+    { "=",                     Token::Class::Operator },
+    { "<",                     Token::Class::Operator },
+    { ">",                     Token::Class::Operator },
+    { "@",                     Token::Class::Operator },
+    { "^",                     Token::Class::Operator },
+    { ".",                     Token::Class::Operator },
+    { "+=",                    Token::Class::Operator },
+    { "-=",                    Token::Class::Operator },
+    { "*=",                    Token::Class::Operator },
+    { "/=",                    Token::Class::Operator },
+    { ":=",                    Token::Class::Operator },
+    { "<<",                    Token::Class::Operator },
+    { ">>",                    Token::Class::Operator },
+    { "<>",                    Token::Class::Operator },
+    { "><",                    Token::Class::Operator },
+    { "**",                    Token::Class::Operator },
+    { "..",                    Token::Class::Operator },
+    { "and",                   Token::Class::Operator },
+    { "div",                   Token::Class::Operator },
+    { "mod",                   Token::Class::Operator },
+    { "not",                   Token::Class::Operator },
+    { "shl",                   Token::Class::Operator },
+    { "shr",                   Token::Class::Operator },
+    { "xor",                   Token::Class::Operator },
+                              
+    { ";",                    Token::Class::Separator },
+    { ":",                    Token::Class::Separator },
+    { ",",                    Token::Class::Separator },
+    { "(",                    Token::Class::Separator },
+    { ")",                    Token::Class::Separator },
+    { "[",                    Token::Class::Separator },
+    { "]",                    Token::Class::Separator },
+    { "(.",                   Token::Class::Separator },
+    { ".)",                   Token::Class::Separator },
+
     { "absolute",          Token::Class::ReservedWord },
     { "array",             Token::Class::ReservedWord },
     { "asm",               Token::Class::ReservedWord },
@@ -58,12 +90,6 @@ const Token::Dict_t Token::_reservedWords = {
 Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std::string value) : _pos(pos), _raw(raw) {
     switch (state) {
     case FiniteAutomata::States::Identifier:        
-        _vtype = ValueType::String;
-        _value.s = new char[value.length() + 1];
-        memcpy(_value.s, value.c_str(), value.length() + 1);
-        _class = _reservedWords.count(value) ? _reservedWords.at(value) : Class::Identifier;
-        break;
-
     case FiniteAutomata::States::Operator:
     case FiniteAutomata::States::OperatorDot:
     case FiniteAutomata::States::OperatorGreater:
@@ -71,19 +97,13 @@ Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std:
     case FiniteAutomata::States::OperatorMult:
     case FiniteAutomata::States::OperatorPlus:
     case FiniteAutomata::States::Slash:
-        _vtype = ValueType::String;
-        _value.s = new char[value.length() + 1];
-        memcpy(_value.s, value.c_str(), value.length() + 1);
-        _class = Class::Operator;
-        break;
-
     case FiniteAutomata::States::Colon:
     case FiniteAutomata::States::Separator:
     case FiniteAutomata::States::LeftParenthesis:
         _vtype = ValueType::String;
         _value.s = new char[value.length() + 1];
         memcpy(_value.s, value.c_str(), value.length() + 1);
-        _class = Class::Separator;
+        _class = _dict.count(value) ? _dict.at(value) : Class::Identifier;
         break;
 
     case FiniteAutomata::States::Decimal:

@@ -1,6 +1,18 @@
 #pragma once
 #include "LexicalAnalyzer.hpp"
 
+const LexicalAnalyzer::Dict_t LexicalAnalyzer::_dict = {
+    { Token::Class::ReservedWord,    "Reserved word" },
+    { Token::Class::Identifier,         "Identifier" },
+    { Token::Class::Operator,             "Operator" },
+    { Token::Class::Separator,           "Separator" },
+    { Token::Class::Constant,             "Constant" },
+};
+
+LexicalAnalyzer::LexicalAnalyzer(char* filename) : _currentState(FiniteAutomata::States::Whitespace), _row(1), _column(1) {
+    open(filename);
+};
+
 Token LexicalAnalyzer::currentToken() const {
     return _currentToken;
 };
@@ -16,7 +28,7 @@ Token LexicalAnalyzer::nextToken() {
             c = 128;
         else 
             _file >> std::noskipws >> c;
-        state = FiniteAutomata::states[static_cast<unsigned int>(_currentState)][tolower(abs(c) - 1)];
+        state = FiniteAutomata::states[static_cast<unsigned int>(_currentState)][tolower(abs(c)) - 1];
         switch (state) {
         case FiniteAutomata::States::NewLine: 
         case FiniteAutomata::States::CommentNewLine:
@@ -39,9 +51,15 @@ Token LexicalAnalyzer::nextToken() {
             }
         case FiniteAutomata::States::StringEnd:
         case FiniteAutomata::States::Percent:
-        case FiniteAutomata::States::Ampersand:
         case FiniteAutomata::States::Dollar:
+        case FiniteAutomata::States::Ampersand:
             raw += c;
+            break;
+        case FiniteAutomata::States::Identifier:
+            if (raw.length() && raw.back() == '&')
+                val += '&';
+            raw += c;
+            val += tolower(c);
             break;
         case FiniteAutomata::States::OperatorDot:
         case FiniteAutomata::States::OperatorGreater:
@@ -49,7 +67,6 @@ Token LexicalAnalyzer::nextToken() {
         case FiniteAutomata::States::OperatorMult:
         case FiniteAutomata::States::OperatorPlus:
         case FiniteAutomata::States::Operator:
-        case FiniteAutomata::States::Identifier:
             raw += c;
             val += tolower(c);
             break;
@@ -57,9 +74,9 @@ Token LexicalAnalyzer::nextToken() {
         case FiniteAutomata::States::BinCharCode:
         case FiniteAutomata::States::OctCharCode:
         case FiniteAutomata::States::HexCharCode:
-            raw += c;
             if (c > '&')
                 code += c;
+            raw += c;
             break;
         case FiniteAutomata::States::Decimal:
         case FiniteAutomata::States::Bin:
@@ -101,6 +118,7 @@ Token LexicalAnalyzer::nextToken() {
             _column += 3;
             goto token;
         default:
+            throwException(state, { _row, _column });
             break;
         }
         _file.peek();
@@ -110,8 +128,6 @@ Token LexicalAnalyzer::nextToken() {
 
     token:
     Token t(_currentState, { _row, _column - raw.length() }, raw, val);
-    if (_storingTokens)
-        _tokens.push_back(t);
     _currentToken = t;
     _currentState = state;
     return t;
@@ -134,20 +150,85 @@ char LexicalAnalyzer::codeToChar(FiniteAutomata::States state, std::string code)
         break;
     }
     return c;
-}
+};
 
-void LexicalAnalyzer::enableStoringTokens() {
-    _storingTokens = true;
+template<typename T>
+void LexicalAnalyzer::log(T& os) {
+    std::list<Token> tokens;
+    while (!eof())        tokens.push_back(nextToken());
+    for (Token t : tokens) {
+        std::string pos, type, raw, val;
+        pos += "(";
+        pos += std::to_string(t._pos.first);
+        pos += ", ";
+        pos += std::to_string(t._pos.second);
+        pos += ")";
+        type = _dict.at(t._class);
+        raw = t._raw;
+        os << pos << std::string(std::abs(static_cast<int>(20 - pos.length())), ' ') << type << std::string(std::abs(static_cast<int>(20 - type.length())), ' ')
+           << raw << std::string(std::abs(static_cast<int>(30 - raw.length())), ' ');
+        switch (t._vtype) {
+        case Token::ValueType::ULL:
+            val = std::to_string(t._value.ull);
+            break;
+        case Token::ValueType::Double:
+            val = std::to_string(t._value.d);
+            break;
+        case Token::ValueType::String:
+            val = t._value.s;
+            break;
+        default:
+            break;
+        }
+        os << val << std::endl;
+    }
 };
-void LexicalAnalyzer::disableStoringTokens() {
-    _storingTokens = false;
-};
-void LexicalAnalyzer::open(const std::string &filename) {
+template void LexicalAnalyzer::log<std::ostream>(std::ostream&);
+template void LexicalAnalyzer::log<std::ofstream>(std::ofstream&);
+
+template<typename T>
+void LexicalAnalyzer::open(T filename) {
     _file.open(filename);
 };
-void LexicalAnalyzer::open(const char* filename) {
-    _file.open(filename);
-};
+template void LexicalAnalyzer::open<const char*>(const char*);
+template void LexicalAnalyzer::open<const std::string&>(const std::string&);
+
 bool LexicalAnalyzer::eof() {
     return _file.eof() && (_currentState == FiniteAutomata::States::EndOfFile);
+};
+void LexicalAnalyzer::throwException(FiniteAutomata::States state, std::pair<int, int> pos) {
+    std::string error;
+    error += "(";
+    error += std::to_string(pos.first);
+    error += ", ";
+    error += std::to_string(pos.second);
+    error += "): ";
+    switch (state) {
+    case FiniteAutomata::States::EOLnWhileReading:
+        error += "Unexpected end of line";
+        break;
+    case FiniteAutomata::States::FractionalPartExpected:
+        error += "Fractional part of float expected";
+        break;
+    case FiniteAutomata::States::IllegalSymbol:
+        error += "Illegal symbol";
+        break;
+    case FiniteAutomata::States::NumberExpected:
+        error += "Number expected";
+        break;
+    case FiniteAutomata::States::ScaleFactorExpected:
+        error += "Exponent scale factor expected";
+        break;
+    case FiniteAutomata::States::UnexpectedEndOfFile:
+        error += "Unexpected end of file";
+        break;
+    case FiniteAutomata::States::UnexpectedSymbol:
+        error += "Unexpected symbol";
+        break;
+    default:
+        break;
+    }
+
+    std::cerr << error << std::endl;
+    throw std::exception(error.c_str());
 };
