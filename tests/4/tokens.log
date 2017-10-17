@@ -1,0 +1,7 @@
+(1, 1)              Identifier          ab                            ab
+(2, 1)              Identifier          cde                           cde
+(3, 1)              Identifier          fghi                          fghi
+(4, 1)              Identifier          jklmn                         jklmn
+(5, 1)              Identifier          opqrst                        opqrst
+(6, 1)              Identifier          uvwxyz                        uvwxyz
+(6, 7)              Constant            EOF                           EOF

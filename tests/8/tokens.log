@@ -1,0 +1,5 @@
+(1, 1)              Identifier          _123456                       _123456
+(2, 1)              Identifier          abc1def                       abc1def
+(3, 1)              Identifier          _1bcdef                       _1bcdef
+(4, 1)              Identifier          _b123ef                       _b123ef
+(4, 8)              Constant            EOF                           EOF

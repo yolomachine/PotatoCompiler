@@ -1,0 +1,6 @@
+b;_ArRaY[0];
+var
+	a: INTEgeR = 0001;
+	b: 		arraY(.1..10.) of inTegEr;
+
+(..):;

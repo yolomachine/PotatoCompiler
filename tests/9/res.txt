@@ -1,0 +1,17 @@
+(1, 4)              Identifier          ________________________________  ________________________________
+(2, 20)             Identifier          __________                    __________
+(3, 15)             Identifier          ____I_____I___I__             ____i_____i___i__
+(4, 14)             Identifier          C__________I______l           c__________i______l
+(5, 19)             Identifier          O                             o
+(5, 29)             Identifier          O                             o
+(6, 5)              Identifier          _                             _
+(6, 9)              Identifier          _                             _
+(6, 13)             Identifier          _                             _
+(6, 17)             Identifier          _                             _
+(6, 21)             Identifier          _                             _
+(6, 25)             Identifier          _                             _
+(6, 29)             Identifier          _                             _
+(6, 33)             Identifier          _                             _
+(6, 36)             Identifier          _                             _
+(11, 5)             Identifier          ________________________________  ________________________________
+(11, 37)            Constant            EOF                           EOF

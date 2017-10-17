@@ -1,0 +1,30 @@
+(1, 1)              Identifier          b                             b
+(1, 2)              Separator           ;                             ;
+(1, 3)              Identifier          _ArRaY                        _array
+(1, 9)              Separator           [                             [
+(1, 10)             Constant            0                             0
+(1, 11)             Separator           ]                             ]
+(1, 12)             Separator           ;                             ;
+(2, 1)              Reserved word       var                           var
+(3, 2)              Identifier          a                             a
+(3, 3)              Separator           :                             :
+(3, 5)              Identifier          INTEgeR                       integer
+(3, 13)             Operator            =                             =
+(3, 15)             Constant            0001                          1
+(3, 19)             Separator           ;                             ;
+(4, 2)              Identifier          b                             b
+(4, 3)              Separator           :                             :
+(4, 7)              Reserved word       arraY                         array
+(4, 12)             Separator           (.                            (.
+(4, 14)             Constant            1                             1
+(4, 15)             Operator            ..                            ..
+(4, 17)             Constant            10                            10
+(4, 19)             Separator           .)                            .)
+(4, 22)             Reserved word       of                            of
+(4, 25)             Identifier          inTegEr                       integer
+(4, 32)             Separator           ;                             ;
+(6, 1)              Separator           (.                            (.
+(6, 3)              Separator           .)                            .)
+(6, 5)              Separator           :                             :
+(6, 6)              Separator           ;                             ;
+(7, 1)              Constant            EOF                           EOF

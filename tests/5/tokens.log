@@ -1,0 +1,17 @@
+(1, 1)              Identifier          _a                            _a
+(2, 1)              Identifier          __a                           __a
+(3, 1)              Identifier          _a_a                          _a_a
+(4, 1)              Identifier          _a_a_                         _a_a_
+(5, 1)              Identifier          __a_a                         __a_a
+(6, 1)              Identifier          __a__a                        __a__a
+(7, 1)              Identifier          __a_a__                       __a_a__
+(8, 1)              Identifier          _______                       _______
+(9, 1)              Identifier          ______a                       ______a
+(10, 1)             Identifier          _____a_                       _____a_
+(11, 1)             Identifier          ____a__                       ____a__
+(12, 1)             Identifier          ___a___                       ___a___
+(13, 1)             Identifier          __a____                       __a____
+(14, 1)             Identifier          _a_____                       _a_____
+(15, 1)             Identifier          a______                       a______
+(16, 1)             Identifier          _______                       _______
+(16, 8)             Constant            EOF                           EOF

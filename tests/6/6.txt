@@ -1,0 +1,29 @@
+absolute      
+array         
+asm           
+begin         
+break         
+case          
+const         
+constructor   
+continue      
+destructor    
+do            
+downto        
+else          
+end           false         
+file          for           
+function      goto          
+if            implementation
+in            inline        
+interface     label         
+nil           object        
+of            packed        
+program       record        
+repeat        set           
+string        
+then          to            
+true          type          
+unit          until         
+uses          var           
+while         with          

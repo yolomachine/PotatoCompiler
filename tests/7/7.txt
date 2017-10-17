@@ -1,0 +1,21 @@
+it is called &_ or die
+
+	in case of nil break program interface
+    &in &case &of &nil &break &program &interface
+&_in_
+	&_case 
+	    &_of 
+	    &_nil 
+	    &_break 
+	&_program 
+&_interface_
+
+Lorem ipsum dolor sit amet consectetur adipiscing elit Duis tempus augue id leo imperdiet finibus Sed vel quam risus Vestibulum semper condimentum pellentesque Praesent et sollicitudin ex Suspendisse euismod ut dui et ultricies Phasellus ac tempor massa Quisque egestas lacus non imperdiet vulputate
+
+Integer sed urna egestas metus placerat imperdiet sit amet eu velit Quisque dignissim ut augue vel pretium Nullam vel nibh mi Lorem ipsum dolor sit amet consectetur adipiscing elit Curabitur non dolor id mi hendrerit egestas sit amet suscipit est Vestibulum blandit aliquam turpis id gravida elit malesuada posuere Ut venenatis lorem nec dignissim mattis nibh lorem congue massa tristique pellentesque velit eros id odio Aliquam enim est tincidunt ut metus id iaculis placerat eros
+
+Etiam quis ipsum velit Cras hendrerit a tellus eget iaculis Fusce bibendum vulputate sapien vitae gravida Suspendisse eget pulvinar tortor at pellentesque magna Aliquam blandit ultrices arcu vitae egestas Aliquam rhoncus dui vitae nunc hendrerit ut tincidunt magna finibus Sed vulputate in massa at faucibus Pellentesque augue arcu maximus vitae arcu eget venenatis commodo turpis Aliquam ac lacinia neque Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae
+
+Donec tempor neque eu arcu egestas venenatis et non enim Nam a dictum magna sed laoreet felis Sed egestas scelerisque risus in molestie urna semper vel Nunc sit amet purus at odio bibendum tincidunt Morbi sit amet nunc ut odio feugiat vehicula sed ac mauris Maecenas fermentum porta risus sed ullamcorper Vivamus ornare congue nisl id ornare Praesent ac metus metus Nam efficitur mi nec magna efficitur pretium Duis pulvinar mauris risus eget finibus lacus volutpat nec Maecenas leo sem lobortis at cursus eget ullamcorper vulputate dui Integer convallis urna massa sit amet varius odio venenatis in
+
+Curabitur rutrum a velit eget semper Ut lacus eros tempor et elit eu aliquam hendrerit libero Orci varius natoque penatibus et magnis dis parturient montes nascetur ridiculus mus Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae Quisque at sagittis lacus sit amet faucibus metus Class aptent taciti sociosqu ad litora torquent per conubia nostra per inceptos himenaeos Aenean in orci turpis Morbi placerat rhoncus ultricies Etiam feugiat mauris id tellus gravida commodo Cras laoreet leo vitae varius interdum Ut placerat odio eget tincidunt porttitor diam ipsum consequat arcu nec sollicitudin arcu risus ac ipsum 

@@ -1,0 +1,9 @@
+(1, 1)              Constant            1.1e5                         110000.000000
+(2, 1)              Constant            1.1e-5                        0.000011
+(3, 1)              Constant            1e5                           100000.000000
+(4, 1)              Constant            1e-5                          0.000010
+(5, 1)              Constant            1.1                           1.100000
+(5, 5)              Constant            1.                            1.000000
+(5, 8)              Constant            1.112312e5                    111231.200000
+(5, 19)             Constant            1.11235123e-5                 0.000011
+(6, 1)              Constant            EOF                           EOF

@@ -1,0 +1,14 @@
+(1, 1)              Operator            ..                            ..
+(1, 4)              Operator            **                            **
+(1, 7)              Operator            ><                            ><
+(1, 10)             Operator            <>                            <>
+(2, 1)              Operator            >>                            >>
+(2, 4)              Operator            <<                            <<
+(2, 7)              Identifier          >=                            >=
+(2, 10)             Identifier          <=                            <=
+(3, 1)              Operator            +=                            +=
+(3, 4)              Operator            -=                            -=
+(3, 7)              Operator            *=                            *=
+(3, 10)             Operator            /=                            /=
+(4, 1)              Operator            :=                            :=
+(5, 1)              Constant            EOF                           EOF
