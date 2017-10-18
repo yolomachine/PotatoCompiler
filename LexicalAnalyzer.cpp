@@ -11,7 +11,6 @@ const LexicalAnalyzer::Dict_t LexicalAnalyzer::_dict = {
 
 LexicalAnalyzer::LexicalAnalyzer(char* filename) : _currentState(FiniteAutomata::States::Whitespace), _row(1), _column(1) {
     open(filename);
-    _file.peek();
 };
 
 Token LexicalAnalyzer::currentToken() const {
@@ -156,8 +155,13 @@ char LexicalAnalyzer::codeToChar(FiniteAutomata::States state, std::string code)
 template<typename T>
 void LexicalAnalyzer::log(T& os) {
     std::list<Token> tokens;
-    while (!eof()) 
-        tokens.push_back(nextToken());
+    try {
+        while (!eof())
+            tokens.push_back(nextToken());
+    } catch (std::exception e) {
+        os << e.what();
+        return;
+    };
     for (Token t : tokens) {
         std::string pos, type, raw, val;
         pos += "(";
@@ -191,6 +195,7 @@ template void LexicalAnalyzer::log<std::ofstream>(std::ofstream&);
 template<typename T>
 void LexicalAnalyzer::open(T filename) {
     _file.open(filename);
+    _file.peek();
 };
 template void LexicalAnalyzer::open<const char*>(const char*);
 template void LexicalAnalyzer::open<const std::string&>(const std::string&);
@@ -209,9 +214,6 @@ void LexicalAnalyzer::throwException(FiniteAutomata::States state, std::pair<int
     case FiniteAutomata::States::EOLnWhileReading:
         error += "Unexpected end of line";
         break;
-    case FiniteAutomata::States::FractionalPartExpected:
-        error += "Fractional part of float expected";
-        break;
     case FiniteAutomata::States::IllegalSymbol:
         error += "Illegal symbol";
         break;
@@ -228,9 +230,9 @@ void LexicalAnalyzer::throwException(FiniteAutomata::States state, std::pair<int
         error += "Unexpected symbol";
         break;
     default:
+        throw std::exception("What a Terrible Failure");
         break;
     }
 
-    std::cerr << error << std::endl;
     throw std::exception(error.c_str());
 };

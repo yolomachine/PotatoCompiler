@@ -50,7 +50,6 @@ namespace FiniteAutomata {
 		UnexpectedEndOfFile,
 		ScaleFactorExpected,
 		NumberExpected,
-		FractionalPartExpected,
 	};
 
 	static const States states[static_cast<unsigned int>(States::Amount)][128] = {
