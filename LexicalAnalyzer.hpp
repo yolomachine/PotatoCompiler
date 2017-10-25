@@ -3,6 +3,7 @@
 #include "Token.hpp"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <list>
 #include <iomanip>
 
@@ -26,7 +27,6 @@ class LexicalAnalyzer {
 
         bool eof();
         void throwException(FiniteAutomata::States state, std::pair<int, int> pos);
-
         char codeToChar(FiniteAutomata::States state, std::string code);
 
     private:

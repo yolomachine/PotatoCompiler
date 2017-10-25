@@ -2,11 +2,20 @@
 #include "LexicalAnalyzer.hpp"
 
 const LexicalAnalyzer::Dict_t LexicalAnalyzer::_dict = {
-    { Token::Class::ReservedWord,    "Reserved word" },
-    { Token::Class::Identifier,         "Identifier" },
-    { Token::Class::Operator,             "Operator" },
-    { Token::Class::Separator,           "Separator" },
-    { Token::Class::Constant,             "Constant" },
+    { Token::Class::ReservedWord,         "Reserved word" },
+    { Token::Class::Identifier,              "Identifier" },
+    { Token::Class::Operator,                  "Operator" },
+    { Token::Class::Separator,                "Separator" },
+    { Token::Class::IntConstant,           "Int Constant" },
+    { Token::Class::FloatConstant,       "Float Constant" },
+    { Token::Class::StringLiteral,       "String Literal" },
+    { Token::Class::Semicolon,                "Semicolon" },
+    { Token::Class::Colon,                        "Colon" },
+    { Token::Class::Comma,                        "Comma" },
+    { Token::Class::LeftParenthesis,   "Left parenthesis" },
+    { Token::Class::RightParenthesis, "Right parenthesis" },
+    { Token::Class::LeftBracket,           "Left bracket" },
+    { Token::Class::RightBracket,         "Right bracket" },
 };
 
 LexicalAnalyzer::LexicalAnalyzer(char* filename) : _currentState(FiniteAutomata::States::Whitespace), _row(1), _column(1) {
@@ -163,7 +172,8 @@ void LexicalAnalyzer::log(T& os) {
         return;
     };
     for (Token t : tokens) {
-        std::string pos, type, raw, val;
+        std::string pos, type, raw;
+        std::stringstream val;
         pos += "(";
         pos += std::to_string(t._pos.first);
         pos += ", ";
@@ -171,22 +181,23 @@ void LexicalAnalyzer::log(T& os) {
         pos += ")";
         type = _dict.at(t._class);
         raw = t._raw;
-        os << pos << std::string(std::abs(static_cast<int>(20 - pos.length())), ' ') << type << std::string(std::abs(static_cast<int>(20 - type.length())), ' ')
-           << raw << std::string(std::abs(static_cast<int>(30 - raw.length())), ' ');
+        os << pos  << std::string(std::abs(static_cast<int>(20 - pos.length())), ' ') 
+           << type << std::string(std::abs(static_cast<int>(20 - type.length())), ' ')
+           << raw  << std::string(std::abs(static_cast<int>(30 - raw.length())), ' ');
         switch (t._vtype) {
         case Token::ValueType::ULL:
-            val = std::to_string(t._value.ull);
+            val << t._value.ull;
             break;
         case Token::ValueType::Double:
-            val = std::to_string(t._value.d);
+            val << std::scientific << t._value.d;
             break;
         case Token::ValueType::String:
-            val = t._value.s;
+            val << t._value.s;
             break;
         default:
             break;
         }
-        os << val << std::endl;
+        os << val.str() << std::endl;
     }
 };
 template void LexicalAnalyzer::log<std::ostream>(std::ostream&);

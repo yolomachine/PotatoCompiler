@@ -23,7 +23,16 @@ class Token {
         Identifier,
         Operator,
         Separator,
-        Constant,
+        IntConstant,
+        FloatConstant,
+        StringLiteral,
+        LeftParenthesis,
+        RightParenthesis,
+        LeftBracket,
+        RightBracket,
+        Comma,
+        Colon,
+        Semicolon,
     };
 
     typedef std::pair<int, int> Position_t;

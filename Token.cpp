@@ -30,15 +30,15 @@ const Token::Dict_t Token::_dict = {
     { "shr",                   Token::Class::Operator },
     { "xor",                   Token::Class::Operator },
                               
-    { ";",                    Token::Class::Separator },
-    { ":",                    Token::Class::Separator },
-    { ",",                    Token::Class::Separator },
-    { "(",                    Token::Class::Separator },
-    { ")",                    Token::Class::Separator },
-    { "[",                    Token::Class::Separator },
-    { "]",                    Token::Class::Separator },
-    { "(.",                   Token::Class::Separator },
-    { ".)",                   Token::Class::Separator },
+    { ":",             Token::Class::Colon            },
+    { ",",             Token::Class::Comma            },
+    { ";",             Token::Class::Semicolon        },
+    { "[",             Token::Class::LeftBracket      },
+    { "]",             Token::Class::RightBracket     },
+    { "(.",            Token::Class::LeftBracket      },
+    { ".)",            Token::Class::RightBracket     },
+    { "(",             Token::Class::LeftParenthesis  },
+    { ")",             Token::Class::RightParenthesis },
 
     { "absolute",          Token::Class::ReservedWord },
     { "array",             Token::Class::ReservedWord },
@@ -112,7 +112,7 @@ Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std:
     case FiniteAutomata::States::Oct:
         _vtype = ValueType::ULL;
         _value.ull = std::stoull(value, 0, static_cast<unsigned int>(state));
-        _class = Class::Constant;
+        _class = Class::IntConstant;
         break;
 
     case FiniteAutomata::States::Float:
@@ -120,7 +120,7 @@ Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std:
     case FiniteAutomata::States::FloatingPoint:
         _vtype = ValueType::Double;
         _value.d = std::stod(value);
-        _class = Class::Constant;
+        _class = Class::FloatConstant;
         break;
 
     case FiniteAutomata::States::DecimalCharCode:
@@ -132,7 +132,7 @@ Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std:
         _vtype = ValueType::String;
         _value.s = new char[value.length() + 1];
         memcpy(_value.s, value.c_str(), value.length() + 1);
-        _class = Class::Constant;
+        _class = Class::StringLiteral;
 
     default:
         break;
