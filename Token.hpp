@@ -23,20 +23,104 @@ class Token {
         Identifier,
         Operator,
         Separator,
-        IntConstant,
-        FloatConstant,
+        Constant,
         StringLiteral,
-        LeftParenthesis,
-        RightParenthesis,
+    };
+
+    enum class SubClass {
+        Add,
+        Sub,
+        Mult,
+        Div,
+        Equal,
+        Less,
+        More,
+        Address,
+        Pointer,
+        Dot,
+        AddAssign,
+        SubAssign,
+        MultAssign,
+        DivAssign,
+        Assign,
+        LEQ,
+        MEQ,
+        NEQ,
+        SymDiff,
+        Exp,
+        Range,
+        And,
+        Or,
+        IntDiv,
+        Mod,
+        Not,
+        SHL,
+        SHR,
+        Xor,
+
+        Colon,
+        Comma,
+        Semicolon,
         LeftBracket,
         RightBracket,
-        Comma,
-        Colon,
-        Semicolon,
+        LeftParenthesis,
+        RightParenthesis,
+
+        Absolute,
+        Array,
+        Asm,
+        Begin,
+        Break,
+        Case,
+        Const,
+        Constructor,
+        Continue,
+        Destructor,
+        Do,
+        DownTo,
+        Else,
+        End,
+        False,
+        File,
+        For,
+        Function,
+        Goto,
+        If,
+        Implementation,
+        In,
+        Inline,
+        Interface,
+        Label,
+        Nil,
+        Object,
+        Of,
+        Packed,
+        Procedure,
+        Program,
+        Record,
+        Repeat,
+        Set,
+        String,
+        Then,
+        To,
+        True,
+        Type,
+        Unit,
+        Until,
+        Uses,
+        Var,
+        While,
+        With,
+
+        IntConst,
+        FloatConst,
+        Identifier,
+        StringLiteral,
+        EndOfFile,
     };
 
     typedef std::pair<int, int> Position_t;
-    typedef std::map<std::string, Class> Dict_t;
+    typedef std::map<std::string, std::pair<SubClass, Class>> Dict_t;
 
     public:
         Token(FiniteAutomata::States state, Position_t pos, std::string raw, std::string value);
@@ -45,10 +129,12 @@ class Token {
 
     private:
         Class _class;
+        SubClass _subClass;
         Value _value;
         ValueType _vtype;
         Position_t _pos;
         std::string _raw;
         static const Dict_t _dict;
         friend class LexicalAnalyzer;
+        friend class Parser;
 };

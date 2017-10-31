@@ -1,24 +1,105 @@
 #pragma once
 #include "LexicalAnalyzer.hpp"
 
-const LexicalAnalyzer::Dict_t LexicalAnalyzer::_dict = {
-    { Token::Class::ReservedWord,         "Reserved word" },
-    { Token::Class::Identifier,              "Identifier" },
-    { Token::Class::Operator,                  "Operator" },
-    { Token::Class::Separator,                "Separator" },
-    { Token::Class::IntConstant,           "Int Constant" },
-    { Token::Class::FloatConstant,       "Float Constant" },
+const LexicalAnalyzer::ClassDict_t LexicalAnalyzer::_classDict = {
+    { Token::Class::ReservedWord,        "Reserved word"  },
+    { Token::Class::Identifier,          "Identifier"     },
+    { Token::Class::Operator,            "Operator"       },
+    { Token::Class::Separator,           "Separator"      },
+    { Token::Class::Constant,            "Constant"       },
     { Token::Class::StringLiteral,       "String Literal" },
-    { Token::Class::Semicolon,                "Semicolon" },
-    { Token::Class::Colon,                        "Colon" },
-    { Token::Class::Comma,                        "Comma" },
-    { Token::Class::LeftParenthesis,   "Left parenthesis" },
-    { Token::Class::RightParenthesis, "Right parenthesis" },
-    { Token::Class::LeftBracket,           "Left bracket" },
-    { Token::Class::RightBracket,         "Right bracket" },
 };
 
-LexicalAnalyzer::LexicalAnalyzer(char* filename) : _currentState(FiniteAutomata::States::Whitespace), _row(1), _column(1) {
+const LexicalAnalyzer::SubClassDict_t LexicalAnalyzer::_subClassDict = {
+   { Token::SubClass::Add,              "+"   },
+   { Token::SubClass::Sub,              "-"   },
+   { Token::SubClass::Mult,             "*"   },
+   { Token::SubClass::Div,              "/"   },
+   { Token::SubClass::Equal,            "="   },
+   { Token::SubClass::Less,             "<"   },
+   { Token::SubClass::More,             ">"   },
+   { Token::SubClass::Address,          "@"   },
+   { Token::SubClass::Pointer,          "^"   },
+   { Token::SubClass::Dot,              "."   },
+   { Token::SubClass::AddAssign,        "+="  },
+   { Token::SubClass::SubAssign,        "-="  },
+   { Token::SubClass::MultAssign,       "*="  },
+   { Token::SubClass::DivAssign,        "/="  },
+   { Token::SubClass::Assign,           ":="  },
+   { Token::SubClass::LEQ,              "<="  },
+   { Token::SubClass::MEQ,              ">="  },
+   { Token::SubClass::SHL,              "<<"  },
+   { Token::SubClass::SHR,              ">>"  },
+   { Token::SubClass::NEQ,              "<>"  },
+   { Token::SubClass::SymDiff,          "><"  },
+   { Token::SubClass::Exp,              "**"  },
+   { Token::SubClass::Range,            ".."  },
+   { Token::SubClass::And,              "and" },
+   { Token::SubClass::IntDiv,           "div" },
+   { Token::SubClass::Mod,              "mod" },
+   { Token::SubClass::Not,              "not" },
+   { Token::SubClass::SHL,              "shl" },
+   { Token::SubClass::SHR,              "shr" },
+   { Token::SubClass::Xor,              "xor" },
+
+   { Token::SubClass::Colon,            ":"  },
+   { Token::SubClass::Comma,            ","  },
+   { Token::SubClass::Semicolon,        ";"  },
+   { Token::SubClass::LeftBracket,      "["  },
+   { Token::SubClass::RightBracket,     "]"  },
+   { Token::SubClass::LeftBracket,      "(." },
+   { Token::SubClass::RightBracket,     ".)" },
+   { Token::SubClass::LeftParenthesis,  "("  },
+   { Token::SubClass::RightParenthesis, ")"  },
+
+   { Token::SubClass::Absolute,         "absolute"       },
+   { Token::SubClass::Array,            "array"          },
+   { Token::SubClass::Asm,              "asm"            },
+   { Token::SubClass::Begin,            "begin"          },
+   { Token::SubClass::Break,            "break"          },
+   { Token::SubClass::Case,             "case"           },
+   { Token::SubClass::Const,            "const"          },
+   { Token::SubClass::Constructor,      "constructor"    },
+   { Token::SubClass::Continue,         "continue"       },
+   { Token::SubClass::Destructor,       "destructor"     },
+   { Token::SubClass::Do,               "do"             },
+   { Token::SubClass::DownTo,           "downto"         },
+   { Token::SubClass::Else,             "else"           },
+   { Token::SubClass::End,              "end"            },
+   { Token::SubClass::False,            "false"          },
+   { Token::SubClass::File,             "file"           },
+   { Token::SubClass::For,              "for"            },
+   { Token::SubClass::Function,         "function"       },
+   { Token::SubClass::Goto,             "goto"           },
+   { Token::SubClass::If,               "if"             },
+   { Token::SubClass::Implementation,   "implementation" },
+   { Token::SubClass::In,               "in"             },
+   { Token::SubClass::Inline,           "inline"         },
+   { Token::SubClass::Interface,        "interface"      },
+   { Token::SubClass::Label,            "label"          },
+   { Token::SubClass::Nil,              "nil"            },
+   { Token::SubClass::Object,           "object"         },
+   { Token::SubClass::Of,               "of"             },
+   { Token::SubClass::Packed,           "packed"         },
+   { Token::SubClass::Procedure,        "procedure"      },
+   { Token::SubClass::Program,          "program"        },
+   { Token::SubClass::Record,           "record"         },
+   { Token::SubClass::Repeat,           "repeat"         },
+   { Token::SubClass::Set,              "set"            },
+   { Token::SubClass::String,           "string"         },
+   { Token::SubClass::Then,             "then"           },
+   { Token::SubClass::To,               "to"             },
+   { Token::SubClass::True,             "true"           },
+   { Token::SubClass::Type,             "type"           },
+   { Token::SubClass::Unit,             "unit"           },
+   { Token::SubClass::Until,            "until"          },
+   { Token::SubClass::Uses,             "uses"           },
+   { Token::SubClass::Var,              "var"            },
+   { Token::SubClass::While,            "while"          },
+   { Token::SubClass::With,             "with"           },
+};
+
+LexicalAnalyzer::LexicalAnalyzer(const char* filename) : _currentState(FiniteAutomata::States::Whitespace), _row(1), _column(1) {
     open(filename);
 };
 
@@ -161,8 +242,7 @@ char LexicalAnalyzer::codeToChar(FiniteAutomata::States state, std::string code)
     return c;
 };
 
-template<typename T>
-void LexicalAnalyzer::log(T& os) {
+void LexicalAnalyzer::log(std::ostream &os) {
     std::list<Token> tokens;
     try {
         while (!eof())
@@ -172,18 +252,13 @@ void LexicalAnalyzer::log(T& os) {
         return;
     };
     for (Token t : tokens) {
-        std::string pos, type, raw;
-        std::stringstream val;
-        pos += "(";
-        pos += std::to_string(t._pos.first);
-        pos += ", ";
-        pos += std::to_string(t._pos.second);
-        pos += ")";
-        type = _dict.at(t._class);
-        raw = t._raw;
-        os << pos  << std::string(std::abs(static_cast<int>(20 - pos.length())), ' ') 
-           << type << std::string(std::abs(static_cast<int>(20 - type.length())), ' ')
-           << raw  << std::string(std::abs(static_cast<int>(30 - raw.length())), ' ');
+        std::stringstream pos, type, raw, val;
+        pos  << "(" << t._pos.first << ", " << t._pos.second << ")";
+        type << _classDict.at(t._class);
+        raw  << t._raw;
+        os << pos.str()  << std::string(std::abs(static_cast<int>(20 - pos.str().length())), ' ') 
+           << type.str() << std::string(std::abs(static_cast<int>(20 - type.str().length())), ' ')
+           << raw.str()  << std::string(std::abs(static_cast<int>(30 - raw.str().length())), ' ');
         switch (t._vtype) {
         case Token::ValueType::ULL:
             val << t._value.ull;
@@ -200,11 +275,11 @@ void LexicalAnalyzer::log(T& os) {
         os << val.str() << std::endl;
     }
 };
-template void LexicalAnalyzer::log<std::ostream>(std::ostream&);
-template void LexicalAnalyzer::log<std::ofstream>(std::ofstream&);
 
 template<typename T>
 void LexicalAnalyzer::open(T filename) {
+    if (_file.is_open())
+        _file.close();
     _file.open(filename);
     _file.peek();
 };
@@ -215,35 +290,31 @@ bool LexicalAnalyzer::eof() {
     return _file.eof() && (_currentState == FiniteAutomata::States::EndOfFile);
 };
 void LexicalAnalyzer::throwException(FiniteAutomata::States state, std::pair<int, int> pos) {
-    std::string error;
-    error += "(";
-    error += std::to_string(pos.first);
-    error += ", ";
-    error += std::to_string(pos.second);
-    error += "): ";
+    std::stringstream error;
+    error << "(" << pos.first << ", " << pos.second << "): ";
     switch (state) {
     case FiniteAutomata::States::EOLnWhileReading:
-        error += "Unexpected end of line";
+        error << "Unexpected end of line";
         break;
     case FiniteAutomata::States::IllegalSymbol:
-        error += "Illegal symbol";
+        error << "Illegal symbol";
         break;
     case FiniteAutomata::States::NumberExpected:
-        error += "Number expected";
+        error << "Number expected";
         break;
     case FiniteAutomata::States::ScaleFactorExpected:
-        error += "Exponent scale factor expected";
+        error << "Exponent scale factor expected";
         break;
     case FiniteAutomata::States::UnexpectedEndOfFile:
-        error += "Unexpected end of file";
+        error << "Unexpected end of file";
         break;
     case FiniteAutomata::States::UnexpectedSymbol:
-        error += "Unexpected symbol";
+        error << "Unexpected symbol";
         break;
     default:
         throw std::exception("What a Terrible Failure");
         break;
     }
 
-    throw std::exception(error.c_str());
+    throw std::exception(error.str().c_str());
 };

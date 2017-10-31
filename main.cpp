@@ -1,4 +1,5 @@
 #include "LexicalAnalyzer.hpp"
+#include "Parser.hpp"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
