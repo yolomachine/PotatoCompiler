@@ -23,12 +23,12 @@ class LexicalAnalyzer {
         template<typename T>
         void open(T filename);
         void log(std::ostream &os);
-
         bool eof();
-        void throwException(FiniteAutomata::States state, std::pair<int, int> pos);
-        char codeToChar(FiniteAutomata::States state, std::string code);
 
     private:
+        void throwException(Token::Position_t pos, FiniteAutomata::States state);
+        char codeToChar(FiniteAutomata::States state, std::string code);
+
         int _row;
         int _column;
         std::ifstream _file;

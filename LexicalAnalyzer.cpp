@@ -97,6 +97,11 @@ const LexicalAnalyzer::SubClassDict_t LexicalAnalyzer::_subClassDict = {
    { Token::SubClass::Var,              "var"            },
    { Token::SubClass::While,            "while"          },
    { Token::SubClass::With,             "with"           },
+   { Token::SubClass::IntConst,         "int const"      },
+   { Token::SubClass::FloatConst,       "float const"    },
+   { Token::SubClass::Identifier,       "identifier"     },
+   { Token::SubClass::StringLiteral,    "string literal" },
+   { Token::SubClass::EndOfFile,        "end of file"    },
 };
 
 LexicalAnalyzer::LexicalAnalyzer(const char* filename) : _currentState(FiniteAutomata::States::Whitespace), _row(1), _column(1) {
@@ -208,19 +213,21 @@ Token LexicalAnalyzer::nextToken() {
             _column += 3;
             goto token;
         default:
-            throwException(state, { _row, _column });
+            throwException({ _row, _column }, state);
             break;
         }
         _file.peek();
         ++_column;
         _currentState = state;
     }
-
     token:
+    if (eof() && !val.length())
+        return _currentToken;
     Token t(_currentState, { _row, _column - raw.length() }, raw, val);
     _currentToken = t;
     _currentState = state;
     return t;
+
 };
 
 char LexicalAnalyzer::codeToChar(FiniteAutomata::States state, std::string code) {
@@ -256,23 +263,11 @@ void LexicalAnalyzer::log(std::ostream &os) {
         pos  << "(" << t._pos.first << ", " << t._pos.second << ")";
         type << _classDict.at(t._class);
         raw  << t._raw;
+        val  << t.toString();
         os << pos.str()  << std::string(std::abs(static_cast<int>(20 - pos.str().length())), ' ') 
            << type.str() << std::string(std::abs(static_cast<int>(20 - type.str().length())), ' ')
-           << raw.str()  << std::string(std::abs(static_cast<int>(30 - raw.str().length())), ' ');
-        switch (t._vtype) {
-        case Token::ValueType::ULL:
-            val << t._value.ull;
-            break;
-        case Token::ValueType::Double:
-            val << std::scientific << t._value.d;
-            break;
-        case Token::ValueType::String:
-            val << t._value.s;
-            break;
-        default:
-            break;
-        }
-        os << val.str() << std::endl;
+           << raw.str()  << std::string(std::abs(static_cast<int>(30 - raw.str().length())), ' ')
+           << val.str()  << std::endl;
     }
 };
 
@@ -289,32 +284,32 @@ template void LexicalAnalyzer::open<const std::string&>(const std::string&);
 bool LexicalAnalyzer::eof() {
     return _file.eof() && (_currentState == FiniteAutomata::States::EndOfFile);
 };
-void LexicalAnalyzer::throwException(FiniteAutomata::States state, std::pair<int, int> pos) {
-    std::stringstream error;
-    error << "(" << pos.first << ", " << pos.second << "): ";
+void LexicalAnalyzer::throwException(Token::Position_t pos, FiniteAutomata::States state) {
+    std::stringstream ss;
+    ss << "(" << pos.first << ", " << pos.second << "): ";
     switch (state) {
     case FiniteAutomata::States::EOLnWhileReading:
-        error << "Unexpected end of line";
+        ss << "Unexpected end of line";
         break;
     case FiniteAutomata::States::IllegalSymbol:
-        error << "Illegal symbol";
+        ss << "Illegal symbol";
         break;
     case FiniteAutomata::States::NumberExpected:
-        error << "Number expected";
+        ss << "Number expected";
         break;
     case FiniteAutomata::States::ScaleFactorExpected:
-        error << "Exponent scale factor expected";
+        ss << "Exponent scale factor expected";
         break;
     case FiniteAutomata::States::UnexpectedEndOfFile:
-        error << "Unexpected end of file";
+        ss << "Unexpected end of file";
         break;
     case FiniteAutomata::States::UnexpectedSymbol:
-        error << "Unexpected symbol";
+        ss << "Unexpected symbol";
         break;
     default:
         throw std::exception("What a Terrible Failure");
         break;
     }
 
-    throw std::exception(error.str().c_str());
+    throw std::exception(ss.str().c_str());
 };

@@ -139,9 +139,27 @@ Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std:
         _value.s = new char[value.length() + 1];
         memcpy(_value.s, value.c_str(), value.length() + 1);
         _class = Class::StringLiteral;
-        _subClass = SubClass::StringLiteral;
+        _subClass = (state == FiniteAutomata::States::EndOfFile ? SubClass::EndOfFile : SubClass::StringLiteral);
 
     default:
         break;
     };
+};
+
+std::string Token::toString() {
+    std::stringstream ss;
+    switch (_vtype) {
+    case Token::ValueType::ULL:
+        ss << _value.ull;
+        break;
+    case Token::ValueType::Double:
+        ss << std::scientific << _value.d;
+        break;
+    case Token::ValueType::String:
+        ss << _value.s;
+        break;
+    default:
+        break;
+    }
+    return ss.str();
 };

@@ -3,6 +3,7 @@
 #include <utility>
 #include <string>
 #include <map>
+#include <sstream>
 
 class Token {
 
@@ -128,6 +129,8 @@ class Token {
         ~Token() {};
 
     private:
+        std::string toString();
+
         Class _class;
         SubClass _subClass;
         Value _value;
@@ -136,5 +139,6 @@ class Token {
         std::string _raw;
         static const Dict_t _dict;
         friend class LexicalAnalyzer;
+        friend class Node;
         friend class Parser;
 };

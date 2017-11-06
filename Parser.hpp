@@ -6,7 +6,8 @@
 
 class Parser {
 
-    typedef std::shared_ptr<LexicalAnalyzer> PLexicalAnalyzer;
+    typedef std::shared_ptr<LexicalAnalyzer> PLexicalAnalyzer_t;
+    typedef Node::PNode_t (Parser::*PFunction_t)(void);
 
     enum class Precedence {
         First,
@@ -16,7 +17,7 @@ class Parser {
     };
 
     public:
-        Parser() : _root(Node::PNode(new Node(Node::Type::Root))){};
+        Parser() {};
         Parser(const char* filename);
         ~Parser() {};
 
@@ -24,19 +25,23 @@ class Parser {
 
         template<typename T>
         void open(T filename);
-        void log(std::ostream& os);
+        void log(std::wostream& os);
 
     private:
-        Node::PNode parseExpr();
-        Node::PNode parseSimpleExpr();
-        Node::PNode parseTerm();
-        Node::PNode parseFactor();
-        Node::PNode parseIdentifier();
+        void visualizeTree(std::wostream& os, Node::PNode_t node, bool isLastChild, std::vector<std::pair<int, bool>> margins);
+
+        Node::PNode_t parseBinOp(Precedence p, PFunction_t pf);
+        Node::PNode_t parseExpr();
+        Node::PNode_t parseSimpleExpr();
+        Node::PNode_t parseTerm();
+        Node::PNode_t parseFactor();
+        Node::PNode_t parseIdentifier(Token t);
+        std::vector<Node::PNode_t> parseArgs();
 
         void throwException(Token::Position_t pos, std::string msg);
-        void expect(Token::Position_t pos, Token::SubClass received, Token::SubClass expected);
-        bool Parser::checkPrecedence(Parser::Precedence p, Token::SubClass s);
-        PLexicalAnalyzer _lexicalAnalyzer;
-        Node::PNode _root;
+        void expect(Token t, Token::SubClass expected);
+        bool checkPrecedence(Precedence p, Token::SubClass s);
+        PLexicalAnalyzer_t _lexicalAnalyzer;
+        Node::PNode_t _root;
         static const std::vector<std::set<Token::SubClass>> _precedences;
 };
