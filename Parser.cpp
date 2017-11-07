@@ -38,6 +38,68 @@ Parser::Parser(const char* filename) {
     open(filename);
 };
 
+Node::PNode_t Parser::parseProgram() {
+    Node::PNode_t program = parseProgramHeading();
+    std::set<Token::SubClass> declKeywords = { 
+        Token::SubClass::Var, 
+        Token::SubClass::Label,
+        Token::SubClass::Type,
+        Token::SubClass::Const,
+    };
+    if (declKeywords.count(_lexicalAnalyzer->currentToken()._subClass))
+        program->addChild(parseDeclaration());
+    return program;
+};
+
+Node::PNode_t Parser::parseProgramHeading() {
+    Node::PNode_t heading;
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Program);
+    heading = Node::PNode_t(new Node(Node::Type::Program, _lexicalAnalyzer->currentToken()));
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Identifier);
+    heading->addChild(Node::PNode_t(new Identifier(_lexicalAnalyzer->currentToken())));
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Semicolon);
+    _lexicalAnalyzer->nextToken();
+    return heading;
+};
+
+Node::PNode_t Parser::parseDeclaration() {
+    std::vector<Node::PNode_t> declarations;
+    while (true) {
+        switch (_lexicalAnalyzer->currentToken()._subClass) {
+        case Token::SubClass::Var:
+            declarations.push_back(parseVar());
+            break;
+        case Token::SubClass::Label:
+            declarations.push_back(parseLabel());
+            break;
+        case Token::SubClass::Type:
+            declarations.push_back(parseType());
+            break;
+        case Token::SubClass::Const:
+            declarations.push_back(parseConst());
+            break;
+        default:
+            return Node::PNode_t(new DeclarationsBlock(declarations));
+        }
+    }
+};
+
+Node::PNode_t Parser::parseVar() {
+
+};
+
+Node::PNode_t Parser::parseLabel() {
+
+};
+
+Node::PNode_t Parser::parseType() {
+
+};
+
+Node::PNode_t Parser::parseConst() {
+
+};
+
 Node::PNode_t Parser::parseBinOp(Parser::Precedence p, Parser::PFunction_t pf) {
     Node::PNode_t left = (this->*pf)();
     Token t = _lexicalAnalyzer->currentToken();
@@ -80,7 +142,7 @@ Node::PNode_t Parser::parseFactor() {
         break;
     case Token::SubClass::LeftParenthesis:
         e = parseExpr();
-        expect(_lexicalAnalyzer->currentToken(), Token::SubClass::RightParenthesis);
+        expect(Token::SubClass::RightParenthesis);
         _lexicalAnalyzer->nextToken();
         return e;
         break;
@@ -96,22 +158,26 @@ Node::PNode_t Parser::parseFactor() {
 Node::PNode_t Parser::parseIdentifier(Token t) {
     std::vector<Node::PNode_t> args;
     Node::PNode_t ident = Node::PNode_t(new Identifier(t));
-    std::set<Token::SubClass> allowed = { Token::SubClass::Dot, Token::SubClass::LeftBracket, Token::SubClass::LeftParenthesis };
+    std::set<Token::SubClass> allowed = { 
+        Token::SubClass::Dot, 
+        Token::SubClass::LeftBracket, 
+        Token::SubClass::LeftParenthesis 
+    };
     while (allowed.count(_lexicalAnalyzer->currentToken()._subClass)) {
         Token t = _lexicalAnalyzer->currentToken();
         _lexicalAnalyzer->nextToken();
         switch (t._subClass) {
             case Token::SubClass::Dot:
-                expect(_lexicalAnalyzer->currentToken(), Token::SubClass::Identifier);
+                expect(Token::SubClass::Identifier);
                 ident = Node::PNode_t(new RecordAccess(ident, Node::PNode_t(new Identifier(_lexicalAnalyzer->currentToken()))));
                 break;
             case Token::SubClass::LeftBracket:
                 ident = Node::PNode_t(new ArrayIndex(ident, parseExpr()));
-                expect(_lexicalAnalyzer->currentToken(), Token::SubClass::RightBracket);
+                expect(Token::SubClass::RightBracket);
                 break;
             case Token::SubClass::LeftParenthesis:
                 ident = Node::PNode_t(new FunctionCall(ident, parseArgs()));
-                expect(_lexicalAnalyzer->currentToken(), Token::SubClass::RightParenthesis);
+                expect(Token::SubClass::RightParenthesis);
                 break;
             default:
                 break;
@@ -134,8 +200,8 @@ std::vector<Node::PNode_t> Parser::parseArgs() {
 };
 
 void Parser::buildTree() {
-    _lexicalAnalyzer->nextToken();
-    _root = parseExpr();
+    _root = parseProgram();
+    _root->addChild(parseExpr());
 };
 
 template<typename T>
@@ -171,6 +237,10 @@ void Parser::log(std::wostream& os) {
     visualizeTree(os, _root);
 };
 
+void Parser::expect(Token::SubClass expected) {
+    expect(_lexicalAnalyzer->currentToken(), expected);
+};
+
 void Parser::expect(Token t, Token::SubClass expected) {
     std::stringstream ss;
     if (expected != t._subClass) {
@@ -188,7 +258,7 @@ void Parser::expect(Token t, Token::SubClass expected) {
 };
 
 bool Parser::checkPrecedence(Parser::Precedence p, Token::SubClass s) {
-    return _precedences.at(static_cast<int>(p)).count(s);
+    return _precedences.at(static_cast<int>(p)).count(s) ? true : false;
 }
 
 void Parser::throwException(Token::Position_t pos, std::string msg) {

@@ -30,6 +30,15 @@ class Parser {
     private:
         void visualizeTree(std::wostream& os, Node::PNode_t node, bool isLastChild, std::vector<std::pair<int, bool>> margins);
 
+        Node::PNode_t parseProgram();
+        Node::PNode_t parseProgramHeading();
+        Node::PNode_t parseDeclaration();
+
+        Node::PNode_t parseVar();
+        Node::PNode_t parseLabel();
+        Node::PNode_t parseType();
+        Node::PNode_t parseConst();
+
         Node::PNode_t parseBinOp(Precedence p, PFunction_t pf);
         Node::PNode_t parseExpr();
         Node::PNode_t parseSimpleExpr();
@@ -39,6 +48,7 @@ class Parser {
         std::vector<Node::PNode_t> parseArgs();
 
         void throwException(Token::Position_t pos, std::string msg);
+        void expect(Token::SubClass expected);
         void expect(Token t, Token::SubClass expected);
         bool checkPrecedence(Precedence p, Token::SubClass s);
         PLexicalAnalyzer_t _lexicalAnalyzer;

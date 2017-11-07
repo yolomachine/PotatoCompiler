@@ -10,6 +10,9 @@ class Node {
         typedef std::shared_ptr<Node> PNode_t;
 
         enum class Type {
+            Program,
+            Declaration,
+            Statement,
             IntConst,
             FloatConst,
             Identifier,
@@ -38,56 +41,107 @@ class Node {
         friend class Parser;
 };
 
-class UnaryOperator : public Node {
+class Name {
     public:
-        UnaryOperator(Token op, PNode_t expr);
-};
+        Name(std::string name);
+        ~Name() {};
 
-class BinaryOperator : public Node {
-    public:
-        BinaryOperator(Token op, PNode_t left, PNode_t right);
-};
-
-class IntConst : public Node {
-public:
-    IntConst(Token t);
-};
-
-class FloatConst : public Node {
-public:
-    FloatConst(Token t);
-};
-
-class Identifier : public Node {
-public:
-    Identifier(Token t);
-};
-
-class StringLiteral : public Node {
-public:
-    StringLiteral(Token t);
-};
-
-class AccessNode : public Node {
-    public:
-        AccessNode::AccessNode(Node::PNode_t caller, Node::PNode_t arg, std::string name, Node::Type type);
-        AccessNode::AccessNode(Node::PNode_t caller, std::vector<Node::PNode_t> args, std::string name, Node::Type type);
         std::string toString();
+
     private:
         std::string _name;
+};
+
+class AtomicNode : public Node {
+    public:
+        AtomicNode(Type type, Token token);
+        ~AtomicNode() {};
+};
+
+class IntConst : public AtomicNode {
+    public:
+        IntConst(Token t);
+        ~IntConst() {};
+};
+
+class FloatConst : public AtomicNode {
+    public:
+        FloatConst(Token t);
+        ~FloatConst() {};
+};
+
+class Identifier : public AtomicNode {
+    public:
+        Identifier(Token t);
+        ~Identifier() {};
+};
+
+class StringLiteral : public AtomicNode {
+    public:
+        StringLiteral(Token t);
+        ~StringLiteral() {};
+};
+
+class ParentNode : public Node {
+    public:
+        ParentNode(Type type, Token token, Node::PNode_t child);
+        ParentNode(Type type, Token token, Node::PNode_t left, Node::PNode_t right);
+        ParentNode(Type type, Token token, std::vector<Node::PNode_t> children);
+        ParentNode(Type type, std::vector<Node::PNode_t> children);
+        ParentNode(Type type, Node::PNode_t left, std::vector<Node::PNode_t> right);
+        ~ParentNode() {};
+
+    private:
+        void addChildren(std::vector<Node::PNode_t> children);
+};
+
+class Declaration : public ParentNode {
+    public:
+        Declaration(Node::Type type, Token keyword, std::vector<Node::PNode_t> declarations);
+        ~Declaration() {};
+};
+
+class DeclarationsBlock : public ParentNode, public Name {
+    public:
+        DeclarationsBlock(std::vector<Node::PNode_t> declarations);
+        ~DeclarationsBlock() {};
+};
+
+class UnaryOperator : public ParentNode {
+    public:
+        UnaryOperator(Token op, PNode_t expr);
+        ~UnaryOperator() {};
+};
+
+class BinaryOperator : public ParentNode {
+    public:
+        BinaryOperator(Token op, PNode_t left, PNode_t right);
+        ~BinaryOperator() {};
+};
+
+class AccessNode : public ParentNode, public Name {
+    public:
+        AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, Node::PNode_t arg, std::string name);
+        AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, std::vector<Node::PNode_t> args, std::string name);
+        ~AccessNode() {};
+
+        std::string toString() override { return Name::toString(); };
 };
 
 class RecordAccess : public AccessNode {
     public:
         RecordAccess(Node::PNode_t record, Node::PNode_t field);
+        ~RecordAccess() {};
 };
 
 class ArrayIndex : public AccessNode {
     public:
         ArrayIndex(PNode_t array, PNode_t index);
+        ~ArrayIndex() {};
 };
 
 class FunctionCall : public AccessNode {
     public:
         FunctionCall(Node::PNode_t function, std::vector<Node::PNode_t> args);
+        ~FunctionCall() {};
 };
