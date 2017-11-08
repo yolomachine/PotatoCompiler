@@ -11,8 +11,17 @@ class Node {
 
         enum class Type {
             Program,
+            
+            DeclarationBlock,
             Declaration,
+            VarDecl,
+            LabelDecl,
+            TypeDecl,
+            ConstDecl,
+
+            StatementBlock,
             Statement,
+
             IntConst,
             FloatConst,
             Identifier,
@@ -97,7 +106,7 @@ class ParentNode : public Node {
 
 class Declaration : public ParentNode {
     public:
-        Declaration(Node::Type type, Token keyword, std::vector<Node::PNode_t> declarations);
+        Declaration(Token keyword, std::vector<Node::PNode_t> declarations);
         ~Declaration() {};
 };
 
@@ -105,6 +114,8 @@ class DeclarationsBlock : public ParentNode, public Name {
     public:
         DeclarationsBlock(std::vector<Node::PNode_t> declarations);
         ~DeclarationsBlock() {};
+
+        std::string toString() override { return Name::toString(); };
 };
 
 class UnaryOperator : public ParentNode {

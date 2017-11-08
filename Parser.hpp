@@ -7,7 +7,7 @@
 class Parser {
 
     typedef std::shared_ptr<LexicalAnalyzer> PLexicalAnalyzer_t;
-    typedef Node::PNode_t (Parser::*PFunction_t)(void);
+    typedef Node::PNode_t (Parser::*PNodeFunction_t)(void);
 
     enum class Precedence {
         First,
@@ -34,23 +34,26 @@ class Parser {
         Node::PNode_t parseProgramHeading();
         Node::PNode_t parseDeclaration();
 
-        Node::PNode_t parseVar();
-        Node::PNode_t parseLabel();
-        Node::PNode_t parseType();
+        //Node::PNode_t parseType();
         Node::PNode_t parseConst();
 
-        Node::PNode_t parseBinOp(Precedence p, PFunction_t pf);
+        Node::PNode_t parseBinOp(Precedence p, PNodeFunction_t pf);
         Node::PNode_t parseExpr();
         Node::PNode_t parseSimpleExpr();
         Node::PNode_t parseTerm();
         Node::PNode_t parseFactor();
         Node::PNode_t parseIdentifier(Token t);
+        Node::PNode_t parseScalarIdentifier();
         std::vector<Node::PNode_t> parseArgs();
+        std::vector<Node::PNode_t> parseIdentifierList();
+        std::vector<Node::PNode_t> parseDeclarations(Token::SubClass separator,  Node::Type declType, Token::SubClass expectedType = Token::SubClass::Identifier);
 
         void throwException(Token::Position_t pos, std::string msg);
         void expect(Token::SubClass expected);
         void expect(Token t, Token::SubClass expected);
         bool checkPrecedence(Precedence p, Token::SubClass s);
+        Token current();
+        Token next();
         PLexicalAnalyzer_t _lexicalAnalyzer;
         Node::PNode_t _root;
         static const std::vector<std::set<Token::SubClass>> _precedences;

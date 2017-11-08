@@ -47,8 +47,8 @@ void ParentNode::addChildren(std::vector<Node::PNode_t> children) {
         addChild(i);
 }
 
-Declaration::Declaration(Node::Type type, Token keyword, std::vector<Node::PNode_t> declarations) : ParentNode(type, keyword, declarations) {};
-DeclarationsBlock::DeclarationsBlock(std::vector<Node::PNode_t> declarations) : ParentNode(Type::Declaration, declarations), Name("declarations") {};
+Declaration::Declaration(Token keyword, std::vector<Node::PNode_t> declarations) : ParentNode(Type::Declaration, keyword, declarations) {};
+DeclarationsBlock::DeclarationsBlock(std::vector<Node::PNode_t> declarations) : ParentNode(Type::DeclarationBlock, declarations), Name("declarations") {};
 UnaryOperator::UnaryOperator(Token op, Node::PNode_t expr) : ParentNode(Type::UnaryOperator, op, expr) {};
 BinaryOperator::BinaryOperator(Token op, PNode_t left, PNode_t right) : ParentNode(Type::UnaryOperator, op, left, right) {};
 AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, Node::PNode_t arg, std::string name) : ParentNode(type, std::vector<Node::PNode_t>{caller, arg}), Name(name) {};
