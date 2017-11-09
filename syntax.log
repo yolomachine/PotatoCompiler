@@ -2,12 +2,6 @@
         ├─test
         ├─declarations
         │            ├─var
-        │            │   ├─a
-        │            │   │ └─integer
-        │            │   ├─b
-        │            │   │ └─integer
-        │            │   ├─c
-        │            │   │ └─integer
         │            │   └─next_line
         │            │             └─real
         │            ├─label
@@ -17,8 +11,16 @@
         │            ├─type
         │            │    ├─int
         │            │    │   └─integer
-        │            │    └─float
-        │            │          └─real
+        │            │    ├─float
+        │            │    │     └─real
+        │            │    ├─trecord
+        │            │    │       └─record
+        │            │    │              └─inner_rec_field
+        │            │    │                              └─..
+        │            │    │                                 ├─1
+        │            │    │                                 └─10
+        │            │    └─str
+        │            │        └─string
         │            ├─var
         │            │   ├─d
         │            │   │ └─int
@@ -26,8 +28,32 @@
         │            │   │ └─float
         │            │   ├─g
         │            │   │ └─float
-        │            │   └─h
-        │            │     └─float
+        │            │   ├─h
+        │            │   │ └─float
+        │            │   ├─rec
+        │            │   │   └─record
+        │            │   │          ├─field1
+        │            │   │          │      └─trecord
+        │            │   │          ├─field2
+        │            │   │          │      └─float
+        │            │   │          └─field3
+        │            │   │                 └─array
+        │            │   │                       ├─..
+        │            │   │                       │  ├─1
+        │            │   │                       │  └─10
+        │            │   │                       └─int
+        │            │   ├─wow_so_cool
+        │            │   │           └─enum
+        │            │   │                ├─mon
+        │            │   │                ├─tue
+        │            │   │                ├─wed
+        │            │   │                ├─thu
+        │            │   │                ├─fri
+        │            │   │                ├─sat
+        │            │   │                └─sun
+        │            │   └─something
+        │            │             └─set
+        │            │                 └─char
         │            └─const
         │                  ├─e
         │                  │ └─2.718282e+00

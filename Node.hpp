@@ -22,6 +22,16 @@ class Node {
             StatementBlock,
             Statement,
 
+            Integer,
+            Real,
+            String,
+            Subrange,
+            Enum,
+            Record,
+            Array,
+            Set,
+            NewType,
+
             IntConst,
             FloatConst,
             Identifier,
@@ -48,17 +58,6 @@ class Node {
         Token _token;
         std::list<PNode_t> _children;
         friend class Parser;
-};
-
-class Name {
-    public:
-        Name(std::string name);
-        ~Name() {};
-
-        std::string toString();
-
-    private:
-        std::string _name;
 };
 
 class AtomicNode : public Node {
@@ -106,16 +105,18 @@ class ParentNode : public Node {
 
 class Declaration : public ParentNode {
     public:
-        Declaration(Token keyword, std::vector<Node::PNode_t> declarations);
+        Declaration(Type type, Token keyword, std::vector<Node::PNode_t> declarations);
         ~Declaration() {};
 };
 
-class DeclarationsBlock : public ParentNode, public Name {
+class DeclarationsBlock : public ParentNode {
     public:
         DeclarationsBlock(std::vector<Node::PNode_t> declarations);
         ~DeclarationsBlock() {};
+        std::string toString() override { return _name; };
 
-        std::string toString() override { return Name::toString(); };
+    private:
+        std::string _name;
 };
 
 class UnaryOperator : public ParentNode {
@@ -130,13 +131,17 @@ class BinaryOperator : public ParentNode {
         ~BinaryOperator() {};
 };
 
-class AccessNode : public ParentNode, public Name {
+class AccessNode : public ParentNode {
     public:
+        AccessNode::AccessNode(Node::Type type, std::vector<Node::PNode_t> args, std::string name);
         AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, Node::PNode_t arg, std::string name);
         AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, std::vector<Node::PNode_t> args, std::string name);
         ~AccessNode() {};
 
-        std::string toString() override { return Name::toString(); };
+        std::string toString() override { return _name; };
+
+    private:
+        std::string _name;
 };
 
 class RecordAccess : public AccessNode {
@@ -155,4 +160,10 @@ class FunctionCall : public AccessNode {
     public:
         FunctionCall(Node::PNode_t function, std::vector<Node::PNode_t> args);
         ~FunctionCall() {};
+};
+
+class Enum : public AccessNode {
+    public:
+        Enum(std::vector<PNode_t> identifiers);
+        ~Enum() {};
 };

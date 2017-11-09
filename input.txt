@@ -1,15 +1,25 @@
 program test;
 var
-	a, b, c: integer;
 	next_line: real;
 label
 	aa, bb, cc;
 type
 	int = integer;
 	float = real;
+	trecord = record
+		   		inner_rec_field: 1..10;
+		   	  end;
+    str = string;
 var
 	d: int;
 	f, g, h: float;
+	rec: record
+		   field1: trecord;
+		   field2: float;
+		   field3: array [1..10] of int;
+		 end;
+	wow_so_cool: (Mon, Tue, Wed, Thu, Fri, Sat, Sun);
+	something: set of char;
 const
 	e = 2.718281828;
 	pi = 3.14159267;
