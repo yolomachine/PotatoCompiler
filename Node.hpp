@@ -15,27 +15,33 @@ class Node {
             DeclarationBlock,
             Declaration,
             VarDecl,
-            LabelDecl,
             TypeDecl,
             ConstDecl,
 
             StatementBlock,
             Statement,
 
+            Type,
+            Value,
+
+            Byte,
+            Boolean,
             Integer,
             Real,
-            String,
+            Char,
             Subrange,
-            Enum,
+            CustomType,
+
+            String,
             Record,
             Array,
-            Set,
-            NewType,
 
+            ReservedWord,
+            Identifier,
+            ConstIdentifier,
             IntConst,
             FloatConst,
-            Identifier,
-            ReservedWord,
+            CharConst,
             StringLiteral,
             BinaryOperator,
             UnaryOperator,
@@ -84,10 +90,22 @@ class Identifier : public AtomicNode {
         ~Identifier() {};
 };
 
+class CharConst : public AtomicNode {
+    public:
+        CharConst(Token t);
+        ~CharConst() {};
+};
+
 class StringLiteral : public AtomicNode {
     public:
         StringLiteral(Token t);
         ~StringLiteral() {};
+};
+
+class CustomType : public AtomicNode {
+    public:
+        CustomType(Token t);
+        ~CustomType() {};
 };
 
 class ParentNode : public Node {
@@ -133,9 +151,10 @@ class BinaryOperator : public ParentNode {
 
 class AccessNode : public ParentNode {
     public:
-        AccessNode::AccessNode(Node::Type type, std::vector<Node::PNode_t> args, std::string name);
-        AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, Node::PNode_t arg, std::string name);
-        AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, std::vector<Node::PNode_t> args, std::string name);
+        AccessNode(Node::Type type, Node::PNode_t child, std::string name);
+        AccessNode(Node::Type type, std::vector<Node::PNode_t> args, std::string name);
+        AccessNode(Node::Type type, Node::PNode_t caller, Node::PNode_t arg, std::string name);
+        AccessNode(Node::Type type, Node::PNode_t caller, std::vector<Node::PNode_t> args, std::string name);
         ~AccessNode() {};
 
         std::string toString() override { return _name; };
@@ -160,10 +179,4 @@ class FunctionCall : public AccessNode {
     public:
         FunctionCall(Node::PNode_t function, std::vector<Node::PNode_t> args);
         ~FunctionCall() {};
-};
-
-class Enum : public AccessNode {
-    public:
-        Enum(std::vector<PNode_t> identifiers);
-        ~Enum() {};
 };

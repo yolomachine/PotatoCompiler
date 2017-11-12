@@ -2,58 +2,164 @@
         ├─test
         ├─declarations
         │            ├─var
-        │            │   └─next_line
-        │            │             └─real
-        │            ├─label
-        │            │     ├─aa
-        │            │     ├─bb
-        │            │     └─cc
+        │            │   └─aaa
+        │            │       ├─type
+        │            │       │    └─array
+        │            │       │          ├─..
+        │            │       │          │  ├─1
+        │            │       │          │  └─2
+        │            │       │          └─type
+        │            │       │               └─array
+        │            │       │                     ├─..
+        │            │       │                     │  ├─1
+        │            │       │                     │  └─3
+        │            │       │                     └─type
+        │            │       │                          └─integer
+        │            │       └─value
+        │            │             └─array
+        │            │                   ├─array
+        │            │                   │     ├─1
+        │            │                   │     ├─2
+        │            │                   │     └─3
+        │            │                   └─array
+        │            │                         ├─1
+        │            │                         ├─2
+        │            │                         └─3
         │            ├─type
         │            │    ├─int
-        │            │    │   └─integer
+        │            │    │   └─type
+        │            │    │        └─integer
         │            │    ├─float
-        │            │    │     └─real
+        │            │    │     └─type
+        │            │    │          └─real
         │            │    ├─trecord
-        │            │    │       └─record
-        │            │    │              └─inner_rec_field
-        │            │    │                              └─..
-        │            │    │                                 ├─1
-        │            │    │                                 └─10
+        │            │    │       └─type
+        │            │    │            └─record
+        │            │    │                   └─inner_rec_field
+        │            │    │                                   └─type
+        │            │    │                                        └─..
+        │            │    │                                           ├─1
+        │            │    │                                           └─10
         │            │    └─str
-        │            │        └─string
+        │            │        └─type
+        │            │             └─string
         │            ├─var
+        │            │   ├─a
+        │            │   │ ├─type
+        │            │   │ │    └─array
+        │            │   │ │          ├─..
+        │            │   │ │          │  ├─1
+        │            │   │ │          │  └─2
+        │            │   │ │          └─type
+        │            │   │ │               └─array
+        │            │   │ │                     ├─..
+        │            │   │ │                     │  ├─1
+        │            │   │ │                     │  └─2
+        │            │   │ │                     └─type
+        │            │   │ │                          └─array
+        │            │   │ │                                ├─..
+        │            │   │ │                                │  ├─1
+        │            │   │ │                                │  └─3
+        │            │   │ │                                └─type
+        │            │   │ │                                     └─integer
+        │            │   │ └─value
+        │            │   │       └─array
+        │            │   │             ├─array
+        │            │   │             │     ├─array
+        │            │   │             │     │     ├─1
+        │            │   │             │     │     ├─2
+        │            │   │             │     │     └─3
+        │            │   │             │     └─array
+        │            │   │             │           ├─1
+        │            │   │             │           ├─2
+        │            │   │             │           └─3
+        │            │   │             └─array
+        │            │   │                   ├─array
+        │            │   │                   │     ├─1
+        │            │   │                   │     ├─2
+        │            │   │                   │     └─3
+        │            │   │                   └─array
+        │            │   │                         ├─1
+        │            │   │                         ├─2
+        │            │   │                         └─3
         │            │   ├─d
-        │            │   │ └─int
+        │            │   │ ├─type
+        │            │   │ │    └─integer
+        │            │   │ └─value
+        │            │   │       └─1
         │            │   ├─f
-        │            │   │ └─float
+        │            │   │ └─type
+        │            │   │      └─float
         │            │   ├─g
-        │            │   │ └─float
+        │            │   │ └─type
+        │            │   │      └─float
         │            │   ├─h
-        │            │   │ └─float
-        │            │   ├─rec
-        │            │   │   └─record
-        │            │   │          ├─field1
-        │            │   │          │      └─trecord
-        │            │   │          ├─field2
-        │            │   │          │      └─float
-        │            │   │          └─field3
-        │            │   │                 └─array
-        │            │   │                       ├─..
-        │            │   │                       │  ├─1
-        │            │   │                       │  └─10
-        │            │   │                       └─int
-        │            │   ├─wow_so_cool
-        │            │   │           └─enum
-        │            │   │                ├─mon
-        │            │   │                ├─tue
-        │            │   │                ├─wed
-        │            │   │                ├─thu
-        │            │   │                ├─fri
-        │            │   │                ├─sat
-        │            │   │                └─sun
-        │            │   └─something
-        │            │             └─set
-        │            │                 └─char
+        │            │   │ └─type
+        │            │   │      └─float
+        │            │   └─rec
+        │            │       ├─type
+        │            │       │    └─record
+        │            │       │           ├─field1
+        │            │       │           │      └─type
+        │            │       │           │           └─integer
+        │            │       │           ├─field2
+        │            │       │           │      └─type
+        │            │       │           │           └─real
+        │            │       │           ├─field3
+        │            │       │           │      └─type
+        │            │       │           │           └─array
+        │            │       │           │                 ├─..
+        │            │       │           │                 │  ├─1
+        │            │       │           │                 │  └─2
+        │            │       │           │                 └─type
+        │            │       │           │                      └─array
+        │            │       │           │                            ├─..
+        │            │       │           │                            │  ├─1
+        │            │       │           │                            │  └─2
+        │            │       │           │                            └─type
+        │            │       │           │                                 └─real
+        │            │       │           └─mega_record
+        │            │       │                       └─type
+        │            │       │                            └─record
+        │            │       │                                   ├─field1
+        │            │       │                                   │      └─type
+        │            │       │                                   │           └─integer
+        │            │       │                                   ├─field2
+        │            │       │                                   │      └─type
+        │            │       │                                   │           └─real
+        │            │       │                                   ├─field3
+        │            │       │                                   │      └─type
+        │            │       │                                   │           └─char
+        │            │       │                                   ├─field4
+        │            │       │                                   │      └─type
+        │            │       │                                   │           └─string
+        │            │       │                                   └─field5
+        │            │       │                                          └─type
+        │            │       │                                               └─char
+        │            │       └─value
+        │            │             ├─field1
+        │            │             │      └─1
+        │            │             ├─field2
+        │            │             │      └─3.141593e+00
+        │            │             ├─field3
+        │            │             │      └─array
+        │            │             │            ├─array
+        │            │             │            │     ├─1.100000e+00
+        │            │             │            │     └─2.200000e+00
+        │            │             │            └─array
+        │            │             │                  ├─3.300000e+00
+        │            │             │                  └─4.400000e+00
+        │            │             └─mega_record
+        │            │                         ├─field1
+        │            │                         │      └─1
+        │            │                         ├─field2
+        │            │                         │      └─1.000000e+00
+        │            │                         ├─field3
+        │            │                         │      └─a
+        │            │                         ├─field4
+        │            │                         │      └─abc
+        │            │                         └─field5
+        │            │                                └─a
         │            └─const
         │                  ├─e
         │                  │ └─2.718282e+00

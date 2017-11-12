@@ -34,14 +34,40 @@ const std::vector<std::set<Token::SubClass>> Parser::_precedences = {
     },
 };
 
-const Parser::Dict_t Parser::varTypes = {
-    { Token::SubClass::Identifier,      &Parser::parseSubrange, },
-    { Token::SubClass::IntConst,        &Parser::parseSubrange, },
-    { Token::SubClass::String,          &Parser::parseString,   },
-    { Token::SubClass::LeftParenthesis, &Parser::parseEnum,     },
-    { Token::SubClass::Record,          &Parser::parseRecord,   },
-    { Token::SubClass::Array,           &Parser::parseArray,    },
-    { Token::SubClass::Set,             &Parser::parseSet,      },
+const Parser::NodeTypesDict_t Parser::_nodeTypes = {
+    { Node::Type::Identifier,      "Identifier"      },
+    { Node::Type::ConstIdentifier, "ConstIdentifier" },
+    { Node::Type::Integer,         "Integer"         },
+    { Node::Type::Real,            "Real"            },
+    { Node::Type::Char,            "Char"            },
+    { Node::Type::Subrange,        "Subrange"        },
+    { Node::Type::String,          "String"          },
+    { Node::Type::Record,          "Record"          },
+    { Node::Type::Array,           "Array"           },
+    { Node::Type::IntConst,        "IntConst"        },
+    { Node::Type::FloatConst,      "FloatConst"      },
+    { Node::Type::CharConst,       "CharConst"       },
+    { Node::Type::StringLiteral,   "StringLiteral"   },
+};
+
+const Parser::IdentifierTypeDict_t Parser::_identifierNodeTypes = {
+    { "integer", Node::Type::Integer },
+    { "char",    Node::Type::Char    },
+    { "real",    Node::Type::Real    },
+};
+
+const Parser::SubClassTypeDict_t Parser::_subClassNodeTypes = {
+    { Token::SubClass::String, Node::Type::String },
+    { Token::SubClass::Array,  Node::Type::Array  },
+    { Token::SubClass::Record, Node::Type::Record },
+};
+
+const Parser::OrdinalInitializersDict_t Parser::_ordinalInitializers = {
+    { Node::Type::Integer,  Node::Type::IntConst      },
+    { Node::Type::Subrange, Node::Type::IntConst      },
+    { Node::Type::Real,     Node::Type::FloatConst    },
+    { Node::Type::String,   Node::Type::StringLiteral },
+    { Node::Type::Char,     Node::Type::CharConst     },
 };
 
 Parser::Parser(const char* filename) {
@@ -52,7 +78,6 @@ Node::PNode_t Parser::parseProgram() {
     Node::PNode_t program = parseProgramHeading();
     std::set<Token::SubClass> declKeywords = { 
         Token::SubClass::Var, 
-        Token::SubClass::Label,
         Token::SubClass::Type,
         Token::SubClass::Const,
     };
@@ -78,12 +103,11 @@ Node::PNode_t Parser::parseDeclaration() {
         Token t = _lexicalAnalyzer->currentToken();
         switch (t._subClass) {
         case Token::SubClass::Var:
+            _lexicalAnalyzer->nextToken();
             declarations.push_back(parseVarDecl(t));
             break;
-        case Token::SubClass::Label:
-            declarations.push_back(parseLabelDecl(t));
-            break;
         case Token::SubClass::Type:
+            _lexicalAnalyzer->nextToken();
             declarations.push_back(parseTypeDecl(t));
             break;
         case Token::SubClass::Const:
@@ -95,16 +119,9 @@ Node::PNode_t Parser::parseDeclaration() {
     }
 };
 
-std::vector<Node::PNode_t> Parser::parseDeclarations(Token::SubClass separator, Token::SubClass expectedType) {
+std::vector<Node::PNode_t> Parser::parseDeclarations(Token::SubClass separator, bool restrictedInitialization) {
     std::vector<Node::PNode_t> declarations;
-    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Identifier);
-
-    if (separator == Token::SubClass::Comma) {
-        declarations = parseIdentifierList();
-        expect(Token::SubClass::Semicolon);
-        _lexicalAnalyzer->nextToken();
-        return declarations;
-    };
+    expect(Token::SubClass::Identifier);
 
     do {
         std::vector<Node::PNode_t> identifiers;
@@ -114,9 +131,17 @@ std::vector<Node::PNode_t> Parser::parseDeclarations(Token::SubClass separator, 
             identifiers.push_back(parseScalarIdentifier());
         expect(separator);
         _lexicalAnalyzer->nextToken();
-        Node::PNode_t type = parseType();
+        Node::PNode_t type(new AccessNode(Node::Type::Type, parseType(), "type"));
         for (auto i : identifiers)
             declarations.push_back(Node::PNode_t(new ParentNode(Node::Type::Identifier, i->_token, type)));
+        if (!restrictedInitialization)
+            if (_lexicalAnalyzer->currentToken()._subClass == Token::SubClass::Equal)
+                if (identifiers.size() > 1)
+                    throwException(_lexicalAnalyzer->currentToken()._pos, "Only one variable can be initialized");
+                else {
+                    _lexicalAnalyzer->nextToken();
+                    declarations.back()->addChild(Node::PNode_t(new AccessNode(Node::Type::Value, parseInitialization(type), "value")));
+                };
         expect(Token::SubClass::Semicolon);
     } while (_lexicalAnalyzer->nextToken()._subClass == Token::SubClass::Identifier);
     return declarations;
@@ -126,12 +151,8 @@ Node::PNode_t Parser::parseVarDecl(Token t) {
     return Node::PNode_t(new Declaration(Node::Type::VarDecl, t, parseDeclarations(Token::SubClass::Colon)));
 };
 
-Node::PNode_t Parser::parseLabelDecl(Token t) {
-    return Node::PNode_t(new Declaration(Node::Type::LabelDecl, t, parseDeclarations(Token::SubClass::Comma)));
-};
-
 Node::PNode_t Parser::parseTypeDecl(Token t) {
-    return Node::PNode_t(new Declaration(Node::Type::TypeDecl, t, parseDeclarations(Token::SubClass::Equal)));
+    return Node::PNode_t(new Declaration(Node::Type::TypeDecl, t, parseDeclarations(Token::SubClass::Equal, true)));
 };
 
 Node::PNode_t Parser::parseConstDecl() {
@@ -149,70 +170,123 @@ Node::PNode_t Parser::parseConstDecl() {
 };
 
 Node::PNode_t Parser::parseType() {
-    Token t = _lexicalAnalyzer->currentToken();
-    if (!varTypes.count(t._subClass))
-        throwException(t._pos, "Error in type declaration");
-    return (this->*varTypes.at(t._subClass))();
+    Token t;
+    Token current = _lexicalAnalyzer->currentToken();
+    Token next = _lexicalAnalyzer->nextToken();
+    Node::Type type;
+    Node::PNode_t result;
+
+    if (current._subClass == Token::SubClass::IntConst)
+        type = Node::Type::IntConst;
+    else if (current._subClass == Token::SubClass::Identifier)
+        type = (_identifierNodeTypes.count(current._value.s) ? _identifierNodeTypes.at(current._value.s) : Node::Type::CustomType);
+    else if (_subClassNodeTypes.count(current._subClass))
+        type = _subClassNodeTypes.at(current._subClass);
+    else
+        throwException(current._pos, "Error in type definition");
+
+    switch (type) {
+    case Node::Type::Integer:
+    case Node::Type::Real:
+    case Node::Type::Char:
+    case Node::Type::String:
+        if (next._subClass == Token::SubClass::Range)
+            throwException(current._pos, "Error in type definition");
+        return Node::PNode_t(new Node(type, current));
+    case Node::Type::CustomType:
+        if (next._subClass != Token::SubClass::Range)
+            return Node::PNode_t(new CustomType(current));
+    case Node::Type::IntConst:
+        expect(next, Token::SubClass::Range);
+        t = _lexicalAnalyzer->nextToken();
+        result = Node::PNode_t(new ParentNode(Node::Type::Subrange, next, Node::PNode_t(new Node(type, current))));
+        if (t._subClass == Token::SubClass::IntConst)
+            result->addChild(Node::PNode_t(new IntConst(t)));
+        else if (t._subClass == Token::SubClass::Identifier && _identifierNodeTypes.count(t._value.s) == 0)
+            result->addChild(Node::PNode_t(new CustomType(t)));
+        else
+            throwException(t._pos, "Error in type definition");
+        _lexicalAnalyzer->nextToken();
+        break;
+    case Node::Type::Record:
+        result = Node::PNode_t(new Declaration(type, current, parseDeclarations(Token::SubClass::Colon, true)));
+        expect(Token::SubClass::End);
+        _lexicalAnalyzer->nextToken();
+        break;
+    case Node::Type::Array:
+        result = Node::PNode_t(new Node(type, current));
+        expect(next, Token::SubClass::LeftBracket);
+        _lexicalAnalyzer->nextToken();
+        result->addChild(parseType());
+        expect(result->_children.back()->_token, Token::SubClass::Range);
+        expect(Token::SubClass::RightBracket);
+        expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Of);
+        _lexicalAnalyzer->nextToken();
+        result->addChild(Node::PNode_t(new AccessNode(Node::Type::Type, parseType(), "type")));
+        break;
+    }
+        return result;
 };
 
-Node::PNode_t Parser::parseSubrange() {
-    if (_lexicalAnalyzer->currentToken().toString() == "char")
-        return parseScalarIdentifier();
-    
-    Token c = _lexicalAnalyzer->currentToken();
-    Token n = _lexicalAnalyzer->nextToken();
+std::vector<Node::PNode_t> Parser::parseInitialization(Node::PNode_t type) {
+    Node::PNode_t result;
+    std::vector<Node::PNode_t> values, nodes;
+    std::map<Node::PNode_t, bool> initialized;
+    uint64_t lowerBound, upperBound;
 
-    if (c._subClass == Token::SubClass::Identifier && n._subClass != Token::SubClass::Range)
-        return Node::PNode_t(new Identifier(c));
-
-    expect(Token::SubClass::Range);
-    Node::PNode_t lowerBound(new Node(c._subClass == Token::SubClass::Identifier ? Node::Type::Identifier : Node::Type::IntConst, c));
-    Token t = _lexicalAnalyzer->nextToken();
-    if (t._subClass != Token::SubClass::Identifier && t._subClass != Token::SubClass::IntConst)
-        throwException(t._pos, "Error in type declaration");
-    _lexicalAnalyzer->nextToken();
-    Node::PNode_t upperBound(new Node(t._subClass == Token::SubClass::Identifier ? Node::Type::Identifier : Node::Type::Identifier, t));
-    return Node::PNode_t(new ParentNode(Node::Type::Subrange, n, lowerBound, upperBound));
-};
-
-Node::PNode_t Parser::parseString() {
-    Token t = _lexicalAnalyzer->currentToken();
-    _lexicalAnalyzer->nextToken();
-    return Node::PNode_t(new Node(Node::Type::String, t));
-};
-
-Node::PNode_t Parser::parseEnum() {
-    _lexicalAnalyzer->nextToken();
-    Node::PNode_t enumerated(new Enum(parseIdentifierList()));
-    expect(Token::SubClass::RightParenthesis);
-    _lexicalAnalyzer->nextToken();
-    return enumerated;
-};
-
-Node::PNode_t Parser::parseRecord() {
-    Token t = _lexicalAnalyzer->currentToken();
-    Node::PNode_t record(new Declaration(Node::Type::Record, t, parseDeclarations(Token::SubClass::Colon)));
-    expect(Token::SubClass::End);
-    _lexicalAnalyzer->nextToken();
-    return record;
-};
-Node::PNode_t Parser::parseArray() {
-    Node::PNode_t array(new Node(Node::Type::Array, _lexicalAnalyzer->currentToken()));
-    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::LeftBracket);
-    _lexicalAnalyzer->nextToken();
-    array->addChild(parseSubrange());
-    expect(Token::SubClass::RightBracket);
-    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Of);
-    _lexicalAnalyzer->nextToken();
-    array->addChild(parseType());
-    return array;
-};
-Node::PNode_t Parser::parseSet() {
-    Node::PNode_t set(new Node(Node::Type::Set, _lexicalAnalyzer->currentToken()));
-    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Of);
-    _lexicalAnalyzer->nextToken();
-    set->addChild(parseSubrange());
-    return set;
+    Node::Type currentType = type->_children.back()->_type;
+    switch (currentType) {
+    case Node::Type::Integer:
+    case Node::Type::Subrange:
+    case Node::Type::Real:
+    case Node::Type::String:
+    case Node::Type::Char:
+        checkExprType(result = parseExpr(), _ordinalInitializers.at(currentType));
+        values.push_back(result);
+        break;
+    case Node::Type::Array:
+        lowerBound = type->_children.back()->_children.front()->_children.front()->_token._value.ull;
+        upperBound = type->_children.back()->_children.front()->_children.back()->_token._value.ull;
+        expect(Token::SubClass::LeftParenthesis);
+        for (uint64_t i = lowerBound; i <= upperBound; ++i) {
+            _lexicalAnalyzer->nextToken();
+            for (auto j : parseInitialization(type->_children.back()->_children.back()))
+                nodes.push_back(j);
+            if (i < upperBound)
+                expect(Token::SubClass::Comma);
+        };
+        expect(Token::SubClass::RightParenthesis);
+        values.push_back(Node::PNode_t(new AccessNode(Node::Type::Value, nodes, "array")));
+        _lexicalAnalyzer->nextToken();
+        break;
+    case Node::Type::Record:
+        expect(Token::SubClass::LeftParenthesis);
+        for (auto i : type->_children.back()->_children) {
+            expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Identifier);
+            if (!std::strcmp(_lexicalAnalyzer->currentToken()._value.s, i->_token._value.s)) {
+                expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Colon);
+                _lexicalAnalyzer->nextToken();
+                values.push_back(Node::PNode_t(new ParentNode(Node::Type::Identifier, *new Token(i->_token), parseInitialization(i->_children.back()))));
+                initialized.insert({i, true});
+            }
+            else {
+                for (auto j : type->_children.back()->_children)
+                    if (!std::strcmp(_lexicalAnalyzer->currentToken()._value.s, j->_token._value.s))
+                        if (initialized.count(j))
+                            throwException(_lexicalAnalyzer->currentToken()._pos, "Field has already been initialized");
+                        else if (&j != &i)
+                            throwException(_lexicalAnalyzer->currentToken()._pos, "Incorrect initialization order");
+                throwException(_lexicalAnalyzer->currentToken()._pos, "Unknown field");
+            };
+            expect(Token::SubClass::Semicolon);
+        };
+        expect(_lexicalAnalyzer->nextToken(), Token::SubClass::RightParenthesis);
+        _lexicalAnalyzer->nextToken();
+        break;
+    default:
+        throwException(_lexicalAnalyzer->currentToken()._pos, "Can't initialize variable of this type");
+    }
+    return values;
 };
 
 Node::PNode_t Parser::parseScalarIdentifier() {
@@ -225,10 +299,10 @@ Node::PNode_t Parser::parseScalarIdentifier() {
 std::vector<Node::PNode_t> Parser::parseIdentifierList() {
     std::vector<Node::PNode_t> identifiers;
     do {
-        identifiers.push_back(Node::PNode_t(new Identifier(_lexicalAnalyzer->currentToken())));
-        if (_lexicalAnalyzer->nextToken()._subClass != Token::SubClass::Comma)
+        identifiers.push_back(parseScalarIdentifier());
+        if (_lexicalAnalyzer->currentToken()._subClass != Token::SubClass::Comma)
             break;
-        expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Identifier);
+        _lexicalAnalyzer->nextToken();
     } while (true);
     return identifiers;
 };
@@ -271,7 +345,7 @@ Node::PNode_t Parser::parseFactor() {
         return Node::PNode_t(new FloatConst(t));
         break;
     case Token::SubClass::StringLiteral:
-        return Node::PNode_t(new StringLiteral(t));
+        return (t._raw.length() == 3 ? Node::PNode_t(new CharConst(t)) : Node::PNode_t(new StringLiteral(t)));
         break;
     case Token::SubClass::LeftParenthesis:
         e = parseExpr();
@@ -309,6 +383,8 @@ Node::PNode_t Parser::parseIdentifier(Token t) {
                 _lexicalAnalyzer->nextToken();
                 break;
             case Token::SubClass::LeftParenthesis:
+                if (ident->_type != Node::Type::Identifier)
+                    throwException(t._pos, "Illegal function call");
                 ident = Node::PNode_t(new FunctionCall(ident, parseArgs()));
                 expect(Token::SubClass::RightParenthesis);
                 _lexicalAnalyzer->nextToken();
@@ -390,12 +466,33 @@ void Parser::expect(Token t, Token::SubClass expected) {
     }
 };
 
+void Parser::expect(Token t, Node::Type received, Node::Type expected) {
+    std::stringstream ss;
+    if (received != expected) {
+        ss << "Incompatible types: \""
+           << _nodeTypes.at(expected)
+           << "\" expected, but \""
+           << _nodeTypes.at(received)
+           << "\" found";
+        throwException(t._pos, ss.str());
+    }
+};
+
 bool Parser::checkPrecedence(Parser::Precedence p, Token::SubClass s) {
     return _precedences.at(static_cast<int>(p)).count(s) ? true : false;
-}
+};
+
+void Parser::checkExprType(Node::PNode_t expr, Node::Type type) {
+    if (expr->_children.size()) {
+        for (auto i : expr->_children)
+            checkExprType(i, type);
+        return;
+    };
+    expect(expr->_token, expr->_type, type);
+};
 
 void Parser::throwException(Token::Position_t pos, std::string msg) {
     std::stringstream ss;
     ss << "(" << pos.first << ", " << pos.second << "): " << msg.c_str();
     throw std::exception(ss.str().c_str());
-}
+};

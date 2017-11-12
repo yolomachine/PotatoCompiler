@@ -12,7 +12,9 @@ AtomicNode::AtomicNode(Type type, Token token) : Node(type, token) {};
 IntConst::IntConst(Token t) : AtomicNode(Type::IntConst, t) {};
 FloatConst::FloatConst(Token t) : AtomicNode(Type::FloatConst, t) {};
 Identifier::Identifier(Token t) : AtomicNode(Type::Identifier, t) {};
+CharConst::CharConst(Token t) : AtomicNode(Type::CharConst, t) {};
 StringLiteral::StringLiteral(Token t) : AtomicNode(Type::StringLiteral, t) {};
+CustomType::CustomType(Token t) : AtomicNode(Type::CustomType, t) {};
 
 ParentNode::ParentNode(Type type, Token token, Node::PNode_t child) : Node(type, token) {
     addChild(child);
@@ -47,6 +49,7 @@ DeclarationsBlock::DeclarationsBlock(std::vector<Node::PNode_t> declarations) : 
 UnaryOperator::UnaryOperator(Token op, Node::PNode_t expr) : ParentNode(Type::UnaryOperator, op, expr) {};
 BinaryOperator::BinaryOperator(Token op, PNode_t left, PNode_t right) : ParentNode(Type::UnaryOperator, op, left, right) {};
 
+AccessNode::AccessNode(Node::Type type, Node::PNode_t child, std::string name) : ParentNode(type, std::vector<Node::PNode_t>{child}), _name(name) {};
 AccessNode::AccessNode(Node::Type type, std::vector<Node::PNode_t> args, std::string name) : ParentNode(type, args), _name(name) {};
 AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, Node::PNode_t arg, std::string name) : ParentNode(type, std::vector<Node::PNode_t>{caller, arg}), _name(name) {};
 AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, std::vector<Node::PNode_t> args, std::string name) : ParentNode(type, caller, args), _name(name) {};
@@ -54,4 +57,3 @@ AccessNode::AccessNode(Node::Type type, Node::PNode_t caller, std::vector<Node::
 RecordAccess::RecordAccess(Node::PNode_t record, Node::PNode_t field) : AccessNode(Type::RecordAccess, record, field, ".") {};
 ArrayIndex::ArrayIndex(Node::PNode_t array, Node::PNode_t index) : AccessNode(Type::ArrayIndex, array, index, "[]") {};
 FunctionCall::FunctionCall(Node::PNode_t function, std::vector<Node::PNode_t> args) : AccessNode(Type::FunctionCall, function, args, "()") {};
-Enum::Enum(std::vector<Node::PNode_t> identifiers) : AccessNode(Type::Enum, identifiers, "enum") {};
