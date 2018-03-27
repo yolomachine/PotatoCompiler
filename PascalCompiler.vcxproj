@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AsmCode.cpp" />
     <ClCompile Include="LexicalAnalyzer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
@@ -117,6 +118,7 @@
     <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AsmCode.hpp" />
     <ClInclude Include="FiniteAutomata.hpp" />
     <ClInclude Include="LexicalAnalyzer.hpp" />
     <ClInclude Include="Node.hpp" />

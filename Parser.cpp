@@ -38,7 +38,7 @@ const Parser::NodeTypesDict_t Parser::_nodeTypes = {
     { Node::Type::Identifier,      "Identifier"      },
     { Node::Type::ConstIdentifier, "ConstIdentifier" },
     { Node::Type::Integer,         "Integer"         },
-    { Node::Type::Real,            "Real"            },
+    { Node::Type::Float,           "Real"            },
     { Node::Type::Char,            "Char"            },
     { Node::Type::Subrange,        "Subrange"        },
     { Node::Type::String,          "String"          },
@@ -50,24 +50,37 @@ const Parser::NodeTypesDict_t Parser::_nodeTypes = {
     { Node::Type::StringLiteral,   "StringLiteral"   },
 };
 
-const Parser::IdentifierTypeDict_t Parser::_identifierNodeTypes = {
-    { "integer", Node::Type::Integer },
-    { "char",    Node::Type::Char    },
-    { "real",    Node::Type::Real    },
-};
-
 const Parser::SubClassTypeDict_t Parser::_subClassNodeTypes = {
-    { Token::SubClass::String, Node::Type::String },
-    { Token::SubClass::Array,  Node::Type::Array  },
-    { Token::SubClass::Record, Node::Type::Record },
+    { Token::SubClass::IntConst,   Node::Type::IntConst   },
+    { Token::SubClass::FloatConst, Node::Type::FloatConst },
+    { Token::SubClass::String,     Node::Type::String     },
+    { Token::SubClass::Array,      Node::Type::Array      },
+    { Token::SubClass::Record,     Node::Type::Record     },
 };
 
 const Parser::OrdinalInitializersDict_t Parser::_ordinalInitializers = {
-    { Node::Type::Integer,  Node::Type::IntConst      },
-    { Node::Type::Subrange, Node::Type::IntConst      },
-    { Node::Type::Real,     Node::Type::FloatConst    },
-    { Node::Type::String,   Node::Type::StringLiteral },
-    { Node::Type::Char,     Node::Type::CharConst     },
+    { Node::Type::Integer,     Node::Type::IntConst      },
+    { Node::Type::IntConst,    Node::Type::IntConst      },
+    { Node::Type::Subrange,    Node::Type::IntConst      },
+    { Node::Type::Float,       Node::Type::FloatConst    },
+    { Node::Type::FloatConst,  Node::Type::FloatConst    },
+    { Node::Type::String,      Node::Type::StringLiteral },
+    { Node::Type::Char,        Node::Type::CharConst     },
+    { Node::Type::CharConst,   Node::Type::CharConst     },
+};
+
+const Parser::IdentifierTypeDict_t Parser::_identifierNodeTypes = {
+    { "integer", Node::Type::Integer },
+    { "char",    Node::Type::Char    },
+    { "real",    Node::Type::Float   },
+};
+
+const Parser::DeclarationsKeywordsSet_t Parser::_declKeywords = {
+    Token::SubClass::Var,
+    Token::SubClass::Type,
+    Token::SubClass::Const,
+    Token::SubClass::Procedure,
+    Token::SubClass::Function
 };
 
 Parser::Parser(const char* filename) {
@@ -75,32 +88,36 @@ Parser::Parser(const char* filename) {
 };
 
 Node::PNode_t Parser::parseProgram() {
+    _symTables = std::make_shared<VecPSymTable_t>();
+    _typeAliases = std::make_shared<Node::SymTable_t>();
     Node::PNode_t program = parseProgramHeading();
-    std::set<Token::SubClass> declKeywords = { 
-        Token::SubClass::Var, 
-        Token::SubClass::Type,
-        Token::SubClass::Const,
-    };
-    if (declKeywords.count(_lexicalAnalyzer->currentToken()._subClass))
+    if (_declKeywords.count(_lexicalAnalyzer->currentToken()._subClass))
         program->addChild(parseDeclaration());
+    expect(Token::SubClass::Begin);
+    _lexicalAnalyzer->nextToken();
+    if (_lexicalAnalyzer->currentToken()._subClass != Token::SubClass::End)
+        program->addChild(parseStatement());
+    expect(Token::SubClass::End);
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Dot);
     return program;
 };
 
 Node::PNode_t Parser::parseProgramHeading() {
     Node::PNode_t heading;
     expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Program);
-    heading = Node::PNode_t(new Node(Node::Type::Program, _lexicalAnalyzer->currentToken()));
+    heading = std::make_shared<Node>(Node::Type::Program, _lexicalAnalyzer->currentToken());
     expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Identifier);
-    heading->addChild(Node::PNode_t(new Identifier(_lexicalAnalyzer->currentToken())));
+    heading->addChild(std::make_shared<Identifier>(_lexicalAnalyzer->currentToken()));
     expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Semicolon);
     _lexicalAnalyzer->nextToken();
     return heading;
 };
 
 Node::PNode_t Parser::parseDeclaration() {
-    std::vector<Node::PNode_t> declarations;
+    Node::VecPNode_t declarations;
     while (true) {
         Token t = _lexicalAnalyzer->currentToken();
+        _symTables->push_back(std::make_shared<Node::SymTable_t>());
         switch (t._subClass) {
         case Token::SubClass::Var:
             _lexicalAnalyzer->nextToken();
@@ -111,166 +128,338 @@ Node::PNode_t Parser::parseDeclaration() {
             declarations.push_back(parseTypeDecl(t));
             break;
         case Token::SubClass::Const:
-            declarations.push_back(parseConstDecl());
+            _lexicalAnalyzer->nextToken();
+            declarations.push_back(parseConstDecl(t));
+            break;
+        case Token::SubClass::Procedure:
+            _lexicalAnalyzer->nextToken();
+            declarations.push_back(parseProcDecl(t));
+            break;
+        case Token::SubClass::Function:
+            _lexicalAnalyzer->nextToken();
+            declarations.push_back(parseFuncDecl(t));
             break;
         default:
-            return Node::PNode_t(new DeclarationsBlock(declarations));
+            _symTables->pop_back();
+            return std::make_shared<DeclarationsBlock>(declarations);
         }
     }
 };
 
-std::vector<Node::PNode_t> Parser::parseDeclarations(Token::SubClass separator, bool restrictedInitialization) {
-    std::vector<Node::PNode_t> declarations;
+// la patte
+Node::PNode_t Parser::parseStatement() {
+    Node::VecPNode_t statements;
+    while (_lexicalAnalyzer->currentToken()._subClass != Token::SubClass::End) {
+        Token t = _lexicalAnalyzer->currentToken();
+        Node::PNode_t expr = parseExpr();
+        if (expr->_type == Node::Type::Identifier && _lexicalAnalyzer->currentToken()._subClass == Token::SubClass::Assign) {
+            std::dynamic_pointer_cast<Identifier>(expr)->isAssignment = true;
+            _lexicalAnalyzer->nextToken();
+            expr->addChild(parseExpr());
+            checkExpr(expr->_children.back());
+            statements.push_back(expr);
+        }
+        if (expr->_type == Node::Type::FunctionCall) {
+            checkExpr(expr);
+            // add reserved words map, totally forgot they exist
+            if (expr->_children.front()->toString() == "writeln")
+                statements.push_back(std::make_shared<WriteLn>(expr->_children.front()->_token, expr->_children.back()));
+            else if (expr->_children.front()->toString() == "write")
+                statements.push_back(std::make_shared<Write>(expr->_children.front()->_token, expr->_children.back()));
+        }
+
+        expect(Token::SubClass::Semicolon);
+        _lexicalAnalyzer->nextToken();
+    }
+    return std::make_shared<StatementsBlock>(statements);
+}
+
+Node::VecPNode_t Parser::parseDeclarations(Token::SubClass separator, bool restrictedInitialization, bool isLocal, bool isParamList) {
+    Node::VecPNode_t declarations;
     expect(Token::SubClass::Identifier);
 
+    if (isLocal)
+        _symTables->push_back(std::make_shared<Node::SymTable_t>());
+
     do {
-        std::vector<Node::PNode_t> identifiers;
-        if (separator == Token::SubClass::Colon)
+    paramListLabel:
+        Node::Type identifierType;
+        Node::VecPNode_t identifiers;
+        if (separator == Token::SubClass::Colon) {
             identifiers = parseIdentifierList();
-        else if (separator == Token::SubClass::Equal)
+            identifierType = Node::Type::Identifier;
+        }
+        else if (separator == Token::SubClass::Equal) {
             identifiers.push_back(parseScalarIdentifier());
+            identifiers.back().get()->_type = identifierType = Node::Type::TypeAliasIdentifier;
+        };
         expect(separator);
         _lexicalAnalyzer->nextToken();
-        Node::PNode_t type(new AccessNode(Node::Type::Type, parseType(), "type"));
-        for (auto i : identifiers)
-            declarations.push_back(Node::PNode_t(new ParentNode(Node::Type::Identifier, i->_token, type)));
-        if (!restrictedInitialization)
-            if (_lexicalAnalyzer->currentToken()._subClass == Token::SubClass::Equal)
-                if (identifiers.size() > 1)
-                    throwException(_lexicalAnalyzer->currentToken()._pos, "Only one variable can be initialized");
-                else {
-                    _lexicalAnalyzer->nextToken();
-                    declarations.back()->addChild(Node::PNode_t(new AccessNode(Node::Type::Value, parseInitialization(type), "value")));
-                };
-        expect(Token::SubClass::Semicolon);
+        Node::PNode_t type = std::make_shared<TypeNode>(parseType(), identifierType);
+        for (auto i : identifiers) {
+            isLocal ? checkDuplicity(i->_token, _symTables->back()) : checkDuplicity(i->_token);
+            declarations.push_back(std::make_shared<ParentNode>(identifierType, i->_token, type));
+            _symTables->back()->insert({ i->toString(), std::make_pair(type, nullptr) });
+        };
+
+        if (!restrictedInitialization && _lexicalAnalyzer->currentToken()._subClass == Token::SubClass::Equal)
+            if (identifiers.size() > 1)
+                throwException(_lexicalAnalyzer->currentToken()._pos, "Can't initialize more than one variable");
+            else {
+                _lexicalAnalyzer->nextToken();
+                Node::PNode_t value = std::make_shared<ValueNode>(parseInitialization(type));
+                declarations.back()->addChild(value);
+                _symTables->back()->operator[](identifiers.back()->toString()).second = value;
+            };
+
+        if (!isParamList) 
+            expect(Token::SubClass::Semicolon);
+        else if (_lexicalAnalyzer->currentToken()._subClass != Token::SubClass::Semicolon)
+            expect(Token::SubClass::RightParenthesis);
+        else {
+            expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Identifier);
+            goto paramListLabel;
+        }
     } while (_lexicalAnalyzer->nextToken()._subClass == Token::SubClass::Identifier);
     return declarations;
 };
 
 Node::PNode_t Parser::parseVarDecl(Token t) {
-    return Node::PNode_t(new Declaration(Node::Type::VarDecl, t, parseDeclarations(Token::SubClass::Colon)));
+    return std::make_shared<Declaration>(Node::Type::VarDecl, t, parseDeclarations(Token::SubClass::Colon));
 };
 
 Node::PNode_t Parser::parseTypeDecl(Token t) {
-    return Node::PNode_t(new Declaration(Node::Type::TypeDecl, t, parseDeclarations(Token::SubClass::Equal, true)));
+    Node::VecPNode_t declarations = parseDeclarations(Token::SubClass::Equal, true);
+    for (auto i : *_symTables->back().get())
+        _typeAliases->operator[](i.first) = i.second;
+    return std::make_shared<Declaration>(Node::Type::TypeDecl, t, declarations);
 };
 
-Node::PNode_t Parser::parseConstDecl() {
-    Token constant = _lexicalAnalyzer->currentToken();
-    Token identifier = _lexicalAnalyzer->nextToken();
-    expect(identifier, Token::SubClass::Identifier);
-    std::vector<Node::PNode_t> constants;
+Node::PNode_t Parser::parseProcDecl(Token t) {
+    return std::make_shared<Declaration>(Node::Type::ProcDecl, t, parseProcedure());
+}
+
+Node::PNode_t Parser::parseFuncDecl(Token t) {
+    return std::make_shared<Declaration>(Node::Type::FuncDecl, t, parseFunction());
+}
+
+Node::PNode_t Parser::parseConstDecl(Token t) {
+    Token next, identifier = _lexicalAnalyzer->currentToken();
+    Node::PNode_t type, value;
+    Node::VecPNode_t constants;
+
     do {
-        expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Equal);
-        _lexicalAnalyzer->nextToken();
-        constants.push_back(Node::PNode_t(new ParentNode(Node::Type::ConstDecl, identifier, parseExpr())));
+        switch ((next = _lexicalAnalyzer->nextToken())._subClass) {
+        case Token::SubClass::Colon:
+            _lexicalAnalyzer->nextToken();
+            type = std::make_shared<TypeNode>(parseType(), Node::Type::ConstIdentifier);
+            expect(Token::SubClass::Equal);
+            _lexicalAnalyzer->nextToken();
+            break;
+        case Token::SubClass::Equal:
+            _lexicalAnalyzer->nextToken();
+            type = std::make_shared<TypeNode>(defineConstType(_lexicalAnalyzer->currentToken()), Node::Type::ConstIdentifier);
+            break;
+        default:
+            throwException(next._pos, "What a terrible failure");
+            break;
+        };
+
+        value = std::make_shared<ValueNode>(parseInitialization(type));
         expect(Token::SubClass::Semicolon);
+        checkDuplicity(identifier);
+        constants.push_back(std::make_shared<ParentNode>(Node::Type::ConstIdentifier, identifier, type, value));
+        _symTables->back()->insert({ identifier.toString(), std::make_pair(type, value) });
     } while ((identifier = _lexicalAnalyzer->nextToken())._subClass == Token::SubClass::Identifier);
-    return Node::PNode_t(new Declaration(Node::Type::ConstDecl, constant, constants));
+    return std::make_shared<Declaration>(Node::Type::ConstDecl, t, constants);
+};
+
+// la patte
+Node::PNode_t Parser::parseFunction() {
+    PVecPSymTable_t localSymTable = std::make_shared<VecPSymTable_t>();
+    Node::PSymTable_t localTypeAliases = std::make_shared<Node::SymTable_t>(*_typeAliases.get());
+    localSymTable->push_back(std::make_shared<Node::SymTable_t>());
+    std::swap(localSymTable, _symTables);
+    std::swap(localTypeAliases, _typeAliases);
+
+    Token identifier = _lexicalAnalyzer->currentToken();
+    checkDuplicity(identifier);
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::LeftParenthesis);
+    _lexicalAnalyzer->nextToken();
+
+    Node::PNode_t params = std::make_shared<ParameterList>(parseDeclarations(Token::SubClass::Colon, false, false, true));
+    expect(Token::SubClass::Colon);
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Identifier);
+
+    Node::PNode_t type = std::make_shared<TypeNode>(parseType(), Node::Type::Type, "return_type");
+    expect(Token::SubClass::Semicolon);
+    _lexicalAnalyzer->nextToken();
+
+    Node::VecPNode_t nodes = std::vector<Node::PNode_t>({ params, type });
+    if (_declKeywords.count(_lexicalAnalyzer->currentToken()._subClass))
+        nodes.push_back(parseDeclaration());
+
+    expect(Token::SubClass::Begin);
+    _lexicalAnalyzer->nextToken();
+    nodes.push_back(parseStatement());
+    expect(Token::SubClass::End);
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Semicolon);
+    _lexicalAnalyzer->nextToken();
+
+    std::shared_ptr<Function> result = std::make_shared<Function>(identifier, nodes, params, type, _symTables);
+    std::swap(localSymTable, _symTables);
+    std::swap(localTypeAliases, _typeAliases);
+    return result;
+};
+
+// la patte
+Node::PNode_t Parser::parseProcedure() {
+    PVecPSymTable_t localSymTable = std::make_shared<VecPSymTable_t>();
+    Node::PSymTable_t localTypeAliases = std::make_shared<Node::SymTable_t>(*_typeAliases.get());
+    localSymTable->push_back(std::make_shared<Node::SymTable_t>());
+    std::swap(localSymTable, _symTables);
+    std::swap(localTypeAliases, _typeAliases);
+
+    Token identifier = _lexicalAnalyzer->currentToken();
+    checkDuplicity(identifier);
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::LeftParenthesis);
+    _lexicalAnalyzer->nextToken(); 
+
+    Node::PNode_t params = std::make_shared<ParameterList>(parseDeclarations(Token::SubClass::Colon, false, false, true));
+    expect(Token::SubClass::Semicolon);
+    _lexicalAnalyzer->nextToken();
+
+    Node::VecPNode_t nodes = std::vector<Node::PNode_t>({ params });
+    if (_declKeywords.count(_lexicalAnalyzer->currentToken()._subClass))
+        nodes.push_back(parseDeclaration());
+
+    expect(Token::SubClass::Begin);
+    _lexicalAnalyzer->nextToken();
+    nodes.push_back(parseStatement());
+    expect(Token::SubClass::End);
+    expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Semicolon);
+    _lexicalAnalyzer->nextToken();
+
+    std::shared_ptr<Procedure> result = std::make_shared<Procedure>(identifier, nodes, params, _symTables);
+    std::swap(localSymTable, _symTables);
+    std::swap(localTypeAliases, _typeAliases);
+    return result;
 };
 
 Node::PNode_t Parser::parseType() {
     Token t;
     Token current = _lexicalAnalyzer->currentToken();
     Token next = _lexicalAnalyzer->nextToken();
-    Node::Type type;
-    Node::PNode_t result;
-
-    if (current._subClass == Token::SubClass::IntConst)
-        type = Node::Type::IntConst;
-    else if (current._subClass == Token::SubClass::Identifier)
-        type = (_identifierNodeTypes.count(current._value.s) ? _identifierNodeTypes.at(current._value.s) : Node::Type::CustomType);
-    else if (_subClassNodeTypes.count(current._subClass))
-        type = _subClassNodeTypes.at(current._subClass);
-    else
-        throwException(current._pos, "Error in type definition");
+    Node::Type type = defineNodeType(current);
+    Node::PNode_t left, right, result;
+    Node::VecPNode_t fields;
 
     switch (type) {
     case Node::Type::Integer:
-    case Node::Type::Real:
+    case Node::Type::Float:
     case Node::Type::Char:
     case Node::Type::String:
-        if (next._subClass == Token::SubClass::Range)
+        if (next._subClass == Token::SubClass::Subrange)
             throwException(current._pos, "Error in type definition");
-        return Node::PNode_t(new Node(type, current));
-    case Node::Type::CustomType:
-        if (next._subClass != Token::SubClass::Range)
-            return Node::PNode_t(new CustomType(current));
+        return std::make_shared<Node>(type, current);
+    case Node::Type::TypeAliasIdentifier:
+        return findSymbol(current._value.s, _typeAliases)->first->_children.back();
+        //without sym table
+        //if (next._subClass != Token::SubClass::Subrange)
+        //    return std::make_shared<TypeAlias>(current);
+    case Node::Type::ConstIdentifier:
+        expect(findSymbol(current._value.s)->second->_children.back()->_token, Token::SubClass::IntConst);
     case Node::Type::IntConst:
-        expect(next, Token::SubClass::Range);
-        t = _lexicalAnalyzer->nextToken();
-        result = Node::PNode_t(new ParentNode(Node::Type::Subrange, next, Node::PNode_t(new Node(type, current))));
-        if (t._subClass == Token::SubClass::IntConst)
-            result->addChild(Node::PNode_t(new IntConst(t)));
-        else if (t._subClass == Token::SubClass::Identifier && _identifierNodeTypes.count(t._value.s) == 0)
-            result->addChild(Node::PNode_t(new CustomType(t)));
+        left = std::make_shared<Node>(type, current);
+        if (type == Node::Type::ConstIdentifier) {
+            left->addChild(findSymbol(current._value.s)->first);
+            left->addChild(findSymbol(current._value.s)->second);
+        };
+        expect(t = next, Token::SubClass::Subrange);
+        next = _lexicalAnalyzer->nextToken();
+        if (next._subClass == Token::SubClass::IntConst)
+            right = std::make_shared<IntConst>(next);
+        else if (defineNodeType(next) == Node::Type::ConstIdentifier) {
+            right = std::make_shared<Node>(Node::Type::ConstIdentifier, next);
+            right->addChild(findSymbol(next._value.s)->first);
+            right->addChild(findSymbol(next._value.s)->second);
+        }
+        //without semantics
+        //else if (next._subClass == Token::SubClass::Identifier && _identifierNodeTypes.count(next._value.s) == 0)
+        //    right = std::make_shared<TypeAlias>(next);
         else
-            throwException(t._pos, "Error in type definition");
+            throwException(next._pos, "Error in type definition");
+        result = std::make_shared<Subrange>(t, left, right);
         _lexicalAnalyzer->nextToken();
         break;
     case Node::Type::Record:
-        result = Node::PNode_t(new Declaration(type, current, parseDeclarations(Token::SubClass::Colon, true)));
+        fields = parseDeclarations(Token::SubClass::Colon, true, true);
+        result = std::make_shared<Record>(current, fields, _symTables->back());
+        _symTables->pop_back();
         expect(Token::SubClass::End);
         _lexicalAnalyzer->nextToken();
         break;
     case Node::Type::Array:
-        result = Node::PNode_t(new Node(type, current));
+        result = std::make_shared<Node>(type, current);
         expect(next, Token::SubClass::LeftBracket);
         _lexicalAnalyzer->nextToken();
         result->addChild(parseType());
-        expect(result->_children.back()->_token, Token::SubClass::Range);
+        expect(result->_children.back()->_token, Token::SubClass::Subrange);
         expect(Token::SubClass::RightBracket);
         expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Of);
         _lexicalAnalyzer->nextToken();
-        result->addChild(Node::PNode_t(new AccessNode(Node::Type::Type, parseType(), "type")));
+        result->addChild(std::make_shared<TypeNode>(parseType(), Node::Type::Type));
         break;
     }
         return result;
 };
 
-std::vector<Node::PNode_t> Parser::parseInitialization(Node::PNode_t type) {
-    Node::PNode_t result;
-    std::vector<Node::PNode_t> values, nodes;
+Node::VecPNode_t Parser::parseInitialization(Node::PNode_t typeNode) {
+    Node::PNode_t result, type = typeNode->_children.back();
+    Node::VecPNode_t values, nodes;
     std::map<Node::PNode_t, bool> initialized;
     uint64_t lowerBound, upperBound;
 
-    Node::Type currentType = type->_children.back()->_type;
+    Node::Type currentType = type->_type;
     switch (currentType) {
     case Node::Type::Integer:
+    case Node::Type::IntConst:
     case Node::Type::Subrange:
-    case Node::Type::Real:
+    case Node::Type::Float:
+    case Node::Type::FloatConst:
     case Node::Type::String:
     case Node::Type::Char:
+    case Node::Type::CharConst:
         checkExprType(result = parseExpr(), _ordinalInitializers.at(currentType));
         values.push_back(result);
         break;
     case Node::Type::Array:
-        lowerBound = type->_children.back()->_children.front()->_children.front()->_token._value.ull;
-        upperBound = type->_children.back()->_children.front()->_children.back()->_token._value.ull;
+        lowerBound = std::dynamic_pointer_cast<Subrange>(type->_children.front())->_lowerBound;
+        upperBound = std::dynamic_pointer_cast<Subrange>(type->_children.front())->_upperBound;
         expect(Token::SubClass::LeftParenthesis);
         for (uint64_t i = lowerBound; i <= upperBound; ++i) {
             _lexicalAnalyzer->nextToken();
-            for (auto j : parseInitialization(type->_children.back()->_children.back()))
+            for (auto j : parseInitialization(type->_children.back()))
                 nodes.push_back(j);
             if (i < upperBound)
                 expect(Token::SubClass::Comma);
         };
         expect(Token::SubClass::RightParenthesis);
-        values.push_back(Node::PNode_t(new AccessNode(Node::Type::Value, nodes, "array")));
+        values.push_back(std::make_shared<ValueNode>(nodes, "array"));
         _lexicalAnalyzer->nextToken();
         break;
     case Node::Type::Record:
         expect(Token::SubClass::LeftParenthesis);
-        for (auto i : type->_children.back()->_children) {
+        for (auto i : type->_children) {
             expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Identifier);
             if (!std::strcmp(_lexicalAnalyzer->currentToken()._value.s, i->_token._value.s)) {
                 expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Colon);
                 _lexicalAnalyzer->nextToken();
-                values.push_back(Node::PNode_t(new ParentNode(Node::Type::Identifier, *new Token(i->_token), parseInitialization(i->_children.back()))));
+                values.push_back(std::make_shared<ParentNode>(Node::Type::Identifier, i->_token, parseInitialization(i->_children.back())));
                 initialized.insert({i, true});
             }
             else {
-                for (auto j : type->_children.back()->_children)
+                for (auto j : type->_children)
                     if (!std::strcmp(_lexicalAnalyzer->currentToken()._value.s, j->_token._value.s))
                         if (initialized.count(j))
                             throwException(_lexicalAnalyzer->currentToken()._pos, "Field has already been initialized");
@@ -289,6 +478,51 @@ std::vector<Node::PNode_t> Parser::parseInitialization(Node::PNode_t type) {
     return values;
 };
 
+Node::Type Parser::defineNodeType(Token t) {
+    if (t._subClass == Token::SubClass::Identifier)
+        if (_identifierNodeTypes.count(t._value.s) && !findSymbol(t._value.s))
+            return _identifierNodeTypes.at(t._value.s);
+        //without sym table
+        //else return Node::Type::TypeAliasIdentifier;
+        else if (findSymbol(t._value.s) && 
+                 std::dynamic_pointer_cast<TypeNode>(findSymbol(t._value.s)->first)->isConst())
+            return Node::Type::ConstIdentifier;
+        else if (findSymbol(t._value.s, _typeAliases) && 
+                 std::dynamic_pointer_cast<TypeNode>(findSymbol(t._value.s, _typeAliases)->first)->isTypeAlias())
+            return Node::Type::TypeAliasIdentifier;
+    if (_subClassNodeTypes.count(t._subClass))
+        return _subClassNodeTypes.at(t._subClass);
+    throwException(t._pos, "Error in type definition");
+};
+
+Node::PNode_t Parser::defineConstType(Token t) {
+    switch (t._vtype) {
+    case Token::ValueType::Double:
+        return std::make_shared<NamedNode>(Node::Type::FloatConst, "real");
+    case Token::ValueType::String:
+        return t.toString().length() > 1 ?
+               std::make_shared<NamedNode>(Node::Type::StringLiteral, "string") :
+               std::make_shared<NamedNode>(Node::Type::CharConst, "char");
+    case Token::ValueType::ULL:
+        return std::make_shared<NamedNode>(Node::Type::IntConst, "integer");
+    default:
+        throwException(t._pos, "Error in const definition");
+    }
+};
+
+Parser::PNodePair_t* Parser::findSymbol(std::string name) {
+    for (auto it = _symTables->rbegin(); it != _symTables->rend(); ++it)
+        if (it->get()->count(name))
+            return &(it->get()->at(name));
+    return nullptr;
+};
+
+Parser::PNodePair_t* Parser::findSymbol(std::string name, Node::PSymTable_t symTable) {
+    if (symTable->count(name))
+        return &(symTable->at(name));
+    return nullptr;
+};
+
 Node::PNode_t Parser::parseScalarIdentifier() {
     expect(Token::SubClass::Identifier);
     Node::PNode_t node(new Identifier(_lexicalAnalyzer->currentToken()));
@@ -296,8 +530,8 @@ Node::PNode_t Parser::parseScalarIdentifier() {
     return node;
 };
 
-std::vector<Node::PNode_t> Parser::parseIdentifierList() {
-    std::vector<Node::PNode_t> identifiers;
+Node::VecPNode_t Parser::parseIdentifierList() {
+    Node::VecPNode_t identifiers;
     do {
         identifiers.push_back(parseScalarIdentifier());
         if (_lexicalAnalyzer->currentToken()._subClass != Token::SubClass::Comma)
@@ -312,7 +546,7 @@ Node::PNode_t Parser::parseBinOp(Parser::Precedence p, Parser::PNodeFunction_t p
     Token t = _lexicalAnalyzer->currentToken();
     while (checkPrecedence(p, t._subClass)) {
         _lexicalAnalyzer->nextToken();
-        left = Node::PNode_t(new BinaryOperator(t, left, (this->*pf)()));
+        left = std::make_shared<BinaryOperator>(t, left, (this->*pf)());
         t = _lexicalAnalyzer->currentToken();
     }
     return left;
@@ -333,19 +567,22 @@ Node::PNode_t Parser::parseFactor() {
     Token t = _lexicalAnalyzer->currentToken();
     _lexicalAnalyzer->nextToken();
     if (checkPrecedence(Parser::Precedence::First, t._subClass))
-        return Node::PNode_t(new UnaryOperator(t, parseExpr()));
+        return std::make_shared<UnaryOperator>(t, parseExpr());
     switch (t._subClass) {
     case Token::SubClass::Identifier:
         return parseIdentifier(t);
         break;
     case Token::SubClass::IntConst:
-        return Node::PNode_t(new IntConst(t));
+        return std::make_shared<IntConst>(t);
         break;
     case Token::SubClass::FloatConst:
-        return Node::PNode_t(new FloatConst(t));
+        return std::make_shared<FloatConst>(t);
         break;
     case Token::SubClass::StringLiteral:
-        return (t._raw.length() == 3 ? Node::PNode_t(new CharConst(t)) : Node::PNode_t(new StringLiteral(t)));
+        if (t._raw.length() == 3)
+            return std::make_shared<CharConst>(t);
+        else
+            return std::make_shared<StringLiteral>(t);        
         break;
     case Token::SubClass::LeftParenthesis:
         e = parseExpr();
@@ -363,8 +600,8 @@ Node::PNode_t Parser::parseFactor() {
 };
 
 Node::PNode_t Parser::parseIdentifier(Token t) {
-    std::vector<Node::PNode_t> args;
-    Node::PNode_t ident = Node::PNode_t(new Identifier(t));
+    Node::VecPNode_t args;
+    Node::PNode_t identifier = std::make_shared<Identifier>(t);
     std::set<Token::SubClass> allowed = { 
         Token::SubClass::Dot, 
         Token::SubClass::LeftBracket, 
@@ -375,17 +612,17 @@ Node::PNode_t Parser::parseIdentifier(Token t) {
         _lexicalAnalyzer->nextToken();
         switch (t._subClass) {
             case Token::SubClass::Dot:
-                ident = Node::PNode_t(new RecordAccess(ident, parseScalarIdentifier()));
+                identifier = std::make_shared<RecordAccess>(identifier, parseScalarIdentifier());
                 break;
             case Token::SubClass::LeftBracket:
-                ident = Node::PNode_t(new ArrayIndex(ident, parseExpr()));
+                identifier = std::make_shared<ArrayIndex>(identifier, parseExpr());
                 expect(Token::SubClass::RightBracket);
                 _lexicalAnalyzer->nextToken();
                 break;
             case Token::SubClass::LeftParenthesis:
-                if (ident->_type != Node::Type::Identifier)
+                if (identifier->_type != Node::Type::Identifier)
                     throwException(t._pos, "Illegal function call");
-                ident = Node::PNode_t(new FunctionCall(ident, parseArgs()));
+                identifier = std::make_shared<FunctionCall>(identifier, parseArgs());
                 expect(Token::SubClass::RightParenthesis);
                 _lexicalAnalyzer->nextToken();
                 break;
@@ -393,11 +630,11 @@ Node::PNode_t Parser::parseIdentifier(Token t) {
                 break;
         }
     }
-    return ident;
+    return identifier;
 };
 
-std::vector<Node::PNode_t> Parser::parseArgs() {
-    std::vector<Node::PNode_t> args; 
+Node::VecPNode_t Parser::parseArgs() {
+    Node::VecPNode_t args; 
     if (_lexicalAnalyzer->currentToken()._subClass != Token::SubClass::RightParenthesis)
         do {
             args.push_back(parseExpr());
@@ -410,12 +647,24 @@ std::vector<Node::PNode_t> Parser::parseArgs() {
 
 void Parser::buildTree() {
     _root = parseProgram();
-    _root->addChild(parseExpr());
+    int offset;
+    for (auto i : *_symTables.get())
+        for (auto j : *i.get()) {
+            if (!std::dynamic_pointer_cast<TypeNode>(j.second.first)->isTypeAlias()) {
+                offset = AsmCode::getTypeSize(j.second.first->_children.front());
+                AsmCode::_offset += offset;
+                AsmCode::_offsetMap[j.first] = { offset, AsmCode::_offset };
+            }
+        };
+    AsmCode::PAsmCommand setOffset = std::make_shared<AsmCommand>(AsmCommands::Enter, std::vector<std::string>({ std::to_string(AsmCode::_offset), "1" }));
+    AsmCode::addCommand(setOffset);
+    AsmCode::generateStatements(_root->_children.back());
+    AsmCode::generate(std::ofstream("code.asm"));
 };
 
 template<typename T>
 void Parser::open(T filename) {
-    _lexicalAnalyzer = Parser::PLexicalAnalyzer_t(new LexicalAnalyzer(filename));
+    _lexicalAnalyzer = std::make_shared<LexicalAnalyzer>(filename);
 };
 
 void Parser::visualizeTree(std::wostream& os, Node::PNode_t node, bool isLastChild = true,
@@ -489,6 +738,30 @@ void Parser::checkExprType(Node::PNode_t expr, Node::Type type) {
         return;
     };
     expect(expr->_token, expr->_type, type);
+};
+
+void Parser::checkExpr(Node::PNode_t expr) {
+    if (expr->_type == Node::Type::Identifier) {
+        if (expr->toString() != "write" && expr->toString() != "writeln")
+            if (!findSymbol(expr->toString()))
+                throwException(expr->_token._pos, "Identifier not found: \"" + expr->toString() + "\"");
+            else if (std::dynamic_pointer_cast<TypeNode>(findSymbol(expr->_token._value.s)->first)->isConst())
+                throwException(expr->_token._pos, "Can't modify constant values: \"" + expr->toString() + "\"");
+            else if (std::dynamic_pointer_cast<TypeNode>(findSymbol(expr->_token._value.s)->first)->isTypeAlias())
+                throwException(expr->_token._pos, "Can't modify type aliases: \"" + expr->toString() + "\"");
+    }
+    for (auto i : expr->_children)
+        checkExpr(i);
+};
+
+void Parser::checkDuplicity(Token t) {
+    if (findSymbol(t.toString())) 
+        throwException(t._pos, "Duplicate identifier \"" + t.toString() + "\"");
+};
+
+void Parser::checkDuplicity(Token t, Node::PSymTable_t symTable) {
+    if (findSymbol(t.toString(), symTable))
+        throwException(t._pos, "Duplicate identifier \"" + t.toString() + "\"");
 };
 
 void Parser::throwException(Token::Position_t pos, std::string msg) {

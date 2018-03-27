@@ -1,30 +1,92 @@
 program test;
+type
+	int = integer;
 var
-    aaa: array [1..2] of array [1..3] of integer = ((1, 2, 3), (1, 2, 3));
+	a: int;
+	b: integer;
+begin
+	a := 12345;
+	b := 10;
+	write(a);
+	write(100);
+	writeln(100-1);
+	writeln(1+2);
+	writeln(a + b);
+end.
+
+
+
+
+{
+program test;
+const
+	int1: integer = 1;
+	int2 = 10;
+	e = 2.718281828;
+	pi = 3.14159267;
+
 type
 	int = integer;
 	float = real;
 	trecord = record
-		   		inner_rec_field: 1..10;
+		   		inner_rec_field: int1..int2;
 		   	  end;
-    str = string;
+    a = string;
+    mrecord = record
+		   	    field1: integer;
+		   	    field2: real;
+		   	    field3: char;
+		   	    field4: string;
+		   	    field5: char;
+		   	  end;
+
+function func(abc, aac, a: a; into: int) : trecord;
+	type
+		int = real;
+	var
+	    aaa1: array [1..2] of array [1..3] of integer = ((1, 2, 3), (1, 2, 3));
+	    aaa2: int;
+	begin
+		aaa2 := 1.0;
+	end;
+
+procedure proc(abc, aac, a: a; into: int);
+	type
+		int = real;
+	var
+	    aaa1: array [1..2] of array [1..3] of integer = ((1, 2, 3), (1, 2, 3));
+	    aaa2: int;
+	begin
+	end;
+
 var
-	a: array [1..2] of array [1..2]  of array [1..3] of integer = (((1, 2, 3), (1, 2, 3)),((1, 2, 3), (1, 2, 3)));
-	d: integer = 1;
+	some_int: integer;
+	other_int: integer;
+    aaa1: array [1..2] of array [1..3] of integer = ((1, 2, 3), (1, 2, 3));
+    aaa2: int;
+	foobar: float = 1.0;
+	ab: array [1..2] of array [1..2]  of array [1..3] of integer = (((1, 2, 3), (1, 2, 3)),((1, 2, 3), (1, 2, 3)));
+	d: mrecord;
+	abc: record
+			f1: integer;
+			f2: record
+				  f1: integer;
+				  f2: real;
+				end;
+		    end;
 	f, g, h: float;
 	rec: record
-		   field1: integer;
-		   field2: real;
+		   field1, field2: real;
 		   field3: array [1..2] of array [1..2] of real;
 		   mega_record: record
-		   				  field1: integer;
-		   				  field2: real;
-		   				  field3: char;
-		   				  field4: string;
-		   				  field5: char;
-		   				end;
+		   	    field1: integer;
+		   	    field2: real;
+		   	    field3: char;
+		   	    field4: string;
+		   	    field5: char;
+		   	  end;
 		 end = ( 
-		 		 field1: 1;
+		 		 field1: 2.7182818;
 		 		 field2: 3.1415926;
 		 		 field3: ((1.1, 2.2),(3.3, 4.4));
 		 		 mega_record: ( 
@@ -35,8 +97,12 @@ var
 		   						field5: 'a'; 
 		   					  );
 		   	   );
-const
-	e = 2.718281828;
-	pi = 3.14159267;
 
-1+abc[a.b.c[func(123)]][1] + abc(1,2,aaa) / foo.bar.baz + 100 - (-(1 * 2 * 3 * 4 * (5 + 6 * (5 + 6)))) * a[1.10]
+begin
+	some_int := 1 + 2 + 3 - 4;
+	other_int := some_int + 1;
+	writeln(1);
+	write(some_int);
+	//a := 1+abc[a.b.c[func(123)]][1] + abc(1,2,aaa) / foo.bar.baz + 100 - (-(1 * 2 * 3 * 4 * (5 + 6 * (5 + 6)))) * a[1.10];
+end.
+}

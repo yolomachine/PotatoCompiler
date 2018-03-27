@@ -33,7 +33,7 @@ const LexicalAnalyzer::SubClassDict_t LexicalAnalyzer::_subClassDict = {
    { Token::SubClass::NEQ,              "<>"  },
    { Token::SubClass::SymDiff,          "><"  },
    { Token::SubClass::Exp,              "**"  },
-   { Token::SubClass::Range,            ".."  },
+   { Token::SubClass::Subrange,            ".."  },
    { Token::SubClass::And,              "and" },
    { Token::SubClass::IntDiv,           "div" },
    { Token::SubClass::Mod,              "mod" },

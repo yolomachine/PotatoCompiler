@@ -23,7 +23,7 @@ const Token::Dict_t Token::_dict = {
     { "<>",                { Token::SubClass::NEQ,              Token::Class::Operator }},
     { "><",                { Token::SubClass::SymDiff,          Token::Class::Operator }},
     { "**",                { Token::SubClass::Exp,              Token::Class::Operator }},
-    { "..",                { Token::SubClass::Range,            Token::Class::Operator }},
+    { "..",                { Token::SubClass::Subrange,         Token::Class::Operator }},
     { "and",               { Token::SubClass::And,              Token::Class::Operator }},
     { "or",                { Token::SubClass::Or,               Token::Class::Operator }},
     { "div",               { Token::SubClass::IntDiv,           Token::Class::Operator }},
@@ -92,7 +92,7 @@ const Token::Dict_t Token::_dict = {
 
 Token::Token(FiniteAutomata::States state, Position_t pos, std::string raw, std::string value) : _pos(pos), _raw(raw) {
     switch (state) {
-    case FiniteAutomata::States::Identifier:        
+    case FiniteAutomata::States::Identifier:
     case FiniteAutomata::States::Operator:
     case FiniteAutomata::States::OperatorDot:
     case FiniteAutomata::States::OperatorGreater:

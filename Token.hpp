@@ -49,7 +49,7 @@ class Token {
         NEQ,
         SymDiff,
         Exp,
-        Range,
+        Subrange,
         And,
         Or,
         IntDiv,
@@ -140,5 +140,9 @@ class Token {
         static const Dict_t _dict;
         friend class LexicalAnalyzer;
         friend class Node;
+        friend class Subrange;
         friend class Parser;
+        friend class AsmCode;
+        friend class UnaryOperator;
+        friend class BinaryOperator;
 };
