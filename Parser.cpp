@@ -1,5 +1,7 @@
 ﻿#include "Parser.hpp"
 
+
+
 const std::vector<std::set<Token::SubClass>> Parser::_precedences = {
     {
         Token::SubClass::Not,
@@ -32,6 +34,12 @@ const std::vector<std::set<Token::SubClass>> Parser::_precedences = {
         Token::SubClass::MEQ,
         Token::SubClass::In,
     },
+};
+
+const std::set<Node::Type> Parser::_reducibleScalarTypes = {
+    Node::Type::Integer,
+    Node::Type::Float,
+    Node::Type::Char,
 };
 
 const Parser::NodeTypesDict_t Parser::_nodeTypes = {
@@ -88,6 +96,7 @@ Parser::Parser(const char* filename) {
 };
 
 Node::PNode_t Parser::parseProgram() {
+    _funcIdentifiersTable = std::make_shared<std::set<std::string>>();
     _symTables = std::make_shared<VecPSymTable_t>();
     _typeAliases = std::make_shared<Node::SymTable_t>();
     Node::PNode_t program = parseProgramHeading();
@@ -153,29 +162,89 @@ Node::PNode_t Parser::parseStatement() {
         Token t = _lexicalAnalyzer->currentToken();
         Node::PNode_t expr = parseExpr();
         if (expr->_type == Node::Type::Identifier && _lexicalAnalyzer->currentToken()._subClass == Token::SubClass::Assign) {
+            //checkExpr(expr);
+            Token op = _lexicalAnalyzer->currentToken();
             std::dynamic_pointer_cast<Identifier>(expr)->isAssignment = true;
             _lexicalAnalyzer->nextToken();
-            expr->addChild(parseExpr());
-            checkExpr(expr->_children.back());
-            statements.push_back(expr);
+            Node::PNode_t assignmentExpr = parseExpr();
+            //validateAndReturnExprType(assignmentExpr);
+            //checkExpr(assignmentExpr);
+            validateAssignment(expr, assignmentExpr);
+            statements.push_back(std::make_shared<BinaryOperator>(op, expr, assignmentExpr));
         }
         if (expr->_type == Node::Type::FunctionCall) {
             checkExpr(expr);
-            // add reserved words map, totally forgot they exist
+            // TO DO: Add reserved words map, totally forgot they exist
             if (expr->_children.front()->toString() == "writeln")
                 statements.push_back(std::make_shared<WriteLn>(expr->_children.front()->_token, expr->_children.back()));
             else if (expr->_children.front()->toString() == "write")
                 statements.push_back(std::make_shared<Write>(expr->_children.front()->_token, expr->_children.back()));
-        }
-
+        };
+        if (t._subClass == Token::SubClass::For) {
+            expect(Token::SubClass::Identifier);
+            Node::PNode_t controlVar = std::make_shared<Identifier>(_lexicalAnalyzer->currentToken());
+            checkExpr(controlVar);
+            expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Assign);
+            _lexicalAnalyzer->nextToken();
+            Node::PNode_t initial = parseExpr();
+            checkExpr(initial);
+            Node::PNode_t to_downto;
+            if (_lexicalAnalyzer->currentToken().toString() == "to")
+                to_downto = std::make_shared<To>(_lexicalAnalyzer->currentToken());
+            else if (_lexicalAnalyzer->currentToken().toString() == "downto")
+                to_downto = std::make_shared<DownTo>(_lexicalAnalyzer->currentToken());
+            _lexicalAnalyzer->nextToken();
+            Node::PNode_t final = parseExpr();
+            checkExpr(final);
+            // Just end my misery
+            expect(Token::SubClass::Do);
+            expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Begin);
+            _lexicalAnalyzer->nextToken();
+            Node::PNode_t body = parseStatement();
+            expect(Token::SubClass::End);
+            _lexicalAnalyzer->nextToken();
+            Node::PNode_t forLoop = std::make_shared<For>(t, initial, to_downto, final, body);
+            controlVar->addChild(initial);
+            controlVar->addChild(final);
+            forLoop->addChild(controlVar);
+            std::swap(forLoop->_children.back(), forLoop->_children.front());
+            statements.push_back(forLoop);
+        };
+        if (t._subClass == Token::SubClass::If) {
+            Node::PNode_t elseBranch = std::make_shared<Node>(Node::Type::StatementBlock);
+            Node::PNode_t condition = parseExpr();
+            checkExpr(condition);
+            expect(Token::SubClass::Then);
+            expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Begin);
+            _lexicalAnalyzer->nextToken();
+            Node::PNode_t thenBranch = parseStatement();
+            expect(Token::SubClass::End);
+            _lexicalAnalyzer->nextToken();
+            // I deserve to burn in hell
+            if (_lexicalAnalyzer->currentToken()._subClass == Token::SubClass::Else) {
+                expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Begin);
+                _lexicalAnalyzer->nextToken();
+                elseBranch = parseStatement();
+                expect(Token::SubClass::End);
+                _lexicalAnalyzer->nextToken();
+            };
+            Node::PNode_t ifStatement = std::make_shared<If>(t, condition, thenBranch, elseBranch);
+            ifStatement->addChild(condition);
+            std::swap(ifStatement->_children.back(), ifStatement->_children.front());
+            statements.push_back(ifStatement);
+        };
         expect(Token::SubClass::Semicolon);
         _lexicalAnalyzer->nextToken();
-    }
+    };
     return std::make_shared<StatementsBlock>(statements);
-}
+};
 
 Node::VecPNode_t Parser::parseDeclarations(Token::SubClass separator, bool restrictedInitialization, bool isLocal, bool isParamList) {
     Node::VecPNode_t declarations;
+    if (isParamList && _lexicalAnalyzer->currentToken()._subClass == Token::SubClass::RightParenthesis) {
+        _lexicalAnalyzer->nextToken();
+        return declarations;
+    };
     expect(Token::SubClass::Identifier);
 
     if (isLocal)
@@ -283,7 +352,10 @@ Node::PNode_t Parser::parseFunction() {
     std::swap(localTypeAliases, _typeAliases);
 
     Token identifier = _lexicalAnalyzer->currentToken();
-    checkDuplicity(identifier);
+    if (_funcIdentifiersTable->count(identifier.toString()))
+        throwException(identifier._pos, "Duplicate identifier \"" + identifier.toString() + "\"");
+    else 
+        _funcIdentifiersTable->insert(identifier.toString());
     expect(_lexicalAnalyzer->nextToken(), Token::SubClass::LeftParenthesis);
     _lexicalAnalyzer->nextToken();
 
@@ -306,9 +378,10 @@ Node::PNode_t Parser::parseFunction() {
     expect(_lexicalAnalyzer->nextToken(), Token::SubClass::Semicolon);
     _lexicalAnalyzer->nextToken();
 
-    std::shared_ptr<Function> result = std::make_shared<Function>(identifier, nodes, params, type, _symTables);
+    Node::PNode_t result = std::make_shared<Function>(identifier, nodes, params, type, _symTables);
     std::swap(localSymTable, _symTables);
     std::swap(localTypeAliases, _typeAliases);
+    _symTables->back()->insert({ identifier.toString(), { type, result } });
     return result;
 };
 
@@ -321,7 +394,10 @@ Node::PNode_t Parser::parseProcedure() {
     std::swap(localTypeAliases, _typeAliases);
 
     Token identifier = _lexicalAnalyzer->currentToken();
-    checkDuplicity(identifier);
+    if (_funcIdentifiersTable->count(identifier.toString()))
+        throwException(identifier._pos, "Duplicate identifier \"" + identifier.toString() + "\"");
+    else
+        _funcIdentifiersTable->insert(identifier.toString());
     expect(_lexicalAnalyzer->nextToken(), Token::SubClass::LeftParenthesis);
     _lexicalAnalyzer->nextToken(); 
 
@@ -343,6 +419,7 @@ Node::PNode_t Parser::parseProcedure() {
     std::shared_ptr<Procedure> result = std::make_shared<Procedure>(identifier, nodes, params, _symTables);
     std::swap(localSymTable, _symTables);
     std::swap(localTypeAliases, _typeAliases);
+    _symTables->back()->insert({ identifier.toString(), { nullptr, result } });
     return result;
 };
 
@@ -590,6 +667,15 @@ Node::PNode_t Parser::parseFactor() {
         _lexicalAnalyzer->nextToken();
         return e;
         break;
+    case Token::SubClass::For:
+    case Token::SubClass::To:
+    case Token::SubClass::DownTo:
+    case Token::SubClass::Do:
+    case Token::SubClass::If:
+    case Token::SubClass::Then:
+    case Token::SubClass::Else:
+        return std::make_shared<ReservedWord>(t);
+        break;
     case Token::SubClass::EndOfFile:
         throwException(t._pos, "Unexpected end of file");
         break;
@@ -647,19 +733,19 @@ Node::VecPNode_t Parser::parseArgs() {
 
 void Parser::buildTree() {
     _root = parseProgram();
-    int offset;
-    for (auto i : *_symTables.get())
-        for (auto j : *i.get()) {
-            if (!std::dynamic_pointer_cast<TypeNode>(j.second.first)->isTypeAlias()) {
-                offset = AsmCode::getTypeSize(j.second.first->_children.front());
-                AsmCode::_offset += offset;
-                AsmCode::_offsetMap[j.first] = { offset, AsmCode::_offset };
-            }
-        };
-    AsmCode::PAsmCommand setOffset = std::make_shared<AsmCommand>(AsmCommands::Enter, std::vector<std::string>({ std::to_string(AsmCode::_offset), "1" }));
-    AsmCode::addCommand(setOffset);
-    AsmCode::generateStatements(_root->_children.back());
-    AsmCode::generate(std::ofstream("code.asm"));
+    //int offset;
+    //for (auto i : *_symTables.get())
+    //    for (auto j : *i.get()) {
+    //        if (!std::dynamic_pointer_cast<TypeNode>(j.second.first)->isTypeAlias()) {
+    //            offset = AsmCode::getTypeSize(j.second.first->_children.front());
+    //            AsmCode::_offset += offset;
+    //            AsmCode::_offsetMap[j.first] = { offset, AsmCode::_offset };
+    //        }
+    //    };
+    //AsmCode::PAsmCommand setOffset = std::make_shared<AsmCommand>(AsmCommands::Enter, std::vector<std::string>({ std::to_string(AsmCode::_offset), "1" }));
+    //AsmCode::addCommand(setOffset);
+    //AsmCode::generateStatements(_root->_children.back());
+    //AsmCode::generate(std::ofstream("code.asm"));
 };
 
 template<typename T>
@@ -745,13 +831,110 @@ void Parser::checkExpr(Node::PNode_t expr) {
         if (expr->toString() != "write" && expr->toString() != "writeln")
             if (!findSymbol(expr->toString()))
                 throwException(expr->_token._pos, "Identifier not found: \"" + expr->toString() + "\"");
-            else if (std::dynamic_pointer_cast<TypeNode>(findSymbol(expr->_token._value.s)->first)->isConst())
-                throwException(expr->_token._pos, "Can't modify constant values: \"" + expr->toString() + "\"");
-            else if (std::dynamic_pointer_cast<TypeNode>(findSymbol(expr->_token._value.s)->first)->isTypeAlias())
-                throwException(expr->_token._pos, "Can't modify type aliases: \"" + expr->toString() + "\"");
-    }
+            else if (!_funcIdentifiersTable->count(expr->toString())) {
+                if (std::dynamic_pointer_cast<TypeNode>(findSymbol(expr->_token._value.s)->first)->isConst())
+                    throwException(expr->_token._pos, "Can't modify constant values: \"" + expr->toString() + "\"");
+                else if (std::dynamic_pointer_cast<TypeNode>(findSymbol(expr->_token._value.s)->first)->isTypeAlias())
+                    throwException(expr->_token._pos, "Can't modify type aliases: \"" + expr->toString() + "\"");
+            };
+    };
+    
     for (auto i : expr->_children)
         checkExpr(i);
+};
+
+Node::Type Parser::validateAndReturnExprType(Node::PNode_t expr) {
+    if (expr->_type == Node::Type::BinaryOperator) {
+        Node::PNode_t left = expr->_children.front();
+        Node::PNode_t right = expr->_children.back();
+        Node::Type leftType = validateAndReturnExprType(left);
+        Node::Type rightType = validateAndReturnExprType(right);
+        if (leftType == Node::Type::Char || rightType == Node::Type::Char)
+            throwException(expr->_token._pos, "Can't apply operator \"" + expr->toString() + "\" to char");
+        if (leftType == Node::Type::Array || rightType == Node::Type::Array)
+            throwException(expr->_token._pos, "Can't apply operator \"" + expr->toString() + "\" to array");
+        if (leftType == Node::Type::Record || rightType == Node::Type::Record)
+            throwException(expr->_token._pos, "Can't apply operator \"" + expr->toString() + "\" to record");
+        if (leftType == Node::Type::FunctionCall || rightType == Node::Type::FunctionCall)
+            throwException(expr->_token._pos, "Can't use procedures in expressions");
+        if (expr->_token._subClass == Token::SubClass::Add ||
+            expr->_token._subClass == Token::SubClass::Sub ||
+            expr->_token._subClass == Token::SubClass::Mult) {
+            if (leftType == rightType)
+                return leftType;
+            else if ((leftType == Node::Type::Integer && rightType == Node::Type::Float) ||
+                (leftType == Node::Type::Float && rightType == Node::Type::Integer))
+                return Node::Type::Float;
+        }
+        else if (expr->_token._subClass == Token::SubClass::Div)
+            return Node::Type::Float;
+        else if (expr->_token._subClass == Token::SubClass::Equal ||
+                 expr->_token._subClass == Token::SubClass::Less ||
+                 expr->_token._subClass == Token::SubClass::More ||
+                 expr->_token._subClass == Token::SubClass::LEQ ||
+                 expr->_token._subClass == Token::SubClass::MEQ ||
+                 expr->_token._subClass == Token::SubClass::NEQ)
+            return Node::Type::Integer;
+    }
+    else if (expr->_type == Node::Type::UnaryOperator)
+        return validateAndReturnExprType(expr->_children.front());
+    else if (expr->_type == Node::Type::FunctionCall) {
+        if (!findSymbol(expr->_children.front()->toString()))
+            throwException(expr->_children.front()->_token._pos, "Identifier not found: \"" + expr->_children.front()->toString() + "\"");
+        else if (!_funcIdentifiersTable->count(expr->_children.front()->toString()))
+            throwException(expr->_children.front()->_token._pos, "Identifier's not a function or a procedure: \"" + expr->_children.front()->toString() + "\"");
+        if (findSymbol(expr->_children.front()->toString())->first) {
+            Function* f = std::static_pointer_cast<Function>(findSymbol(expr->_children.front()->toString())->second).get();
+            for (size_t i = 1; i < expr->_children.size(); ++i) {
+                if (findSymbol(expr->_children[i]->toString())); ///////////
+            }
+            return findSymbol(expr->_children.front()->toString())->first->_children.front()->_type;
+        }
+        else
+            return Node::Type::FunctionCall;
+    }
+    else if (expr->_type == Node::Type::Identifier) {
+        if (_funcIdentifiersTable->count(expr->toString()))
+            throwException(expr->_token._pos, "Improper call of a function or a procedure: \"" + expr->toString() + "\"");
+        return findSymbol(expr->toString())->first->_children.front()->_type;
+    }
+    else if (expr->_type == Node::Type::IntConst)
+        return Node::Type::Integer;
+    else if (expr->_type == Node::Type::FloatConst)
+        return Node::Type::Float;
+    else if (expr->_type == Node::Type::CharConst)
+        return Node::Type::Char;
+    else return expr->_type;
+};
+
+void Parser::validateNodeTypes(Node::PNode_t leftTypeNode, Node::PNode_t rightTypeNode, const Token::Position_t pos) {
+    if (leftTypeNode->_type == rightTypeNode->_type) {
+        if (leftTypeNode->_type == Node::Type::Subrange)
+            if ((std::static_pointer_cast<Subrange>(leftTypeNode)->_lowerBound != 
+                std::static_pointer_cast<Subrange>(rightTypeNode)->_lowerBound) ||
+                (std::static_pointer_cast<Subrange>(leftTypeNode)->_upperBound !=
+                 std::static_pointer_cast<Subrange>(rightTypeNode)->_upperBound))
+            throwException(pos, "Incompatible types");
+        if (leftTypeNode->_children.size() == rightTypeNode->_children.size())
+            for (size_t i = 0; i < leftTypeNode->_children.size(); ++i)
+                validateNodeTypes(leftTypeNode->_children[i], rightTypeNode->_children[i], pos);
+        else
+            throwException(pos, "Incompatible types");
+    }
+    else
+        throwException(pos, "Incompatible types");
+};
+
+void Parser::validateAssignment(Node::PNode_t left, Node::PNode_t right) {
+    checkExpr(left);
+    checkExpr(right);
+    Node::Type leftType = validateAndReturnExprType(left);
+    Node::Type rightType = validateAndReturnExprType(right);
+    if ((_reducibleScalarTypes.count(leftType) && !_reducibleScalarTypes.count(rightType)) ||
+        (!_reducibleScalarTypes.count(leftType) && _reducibleScalarTypes.count(rightType)))
+        throwException(right->_token._pos, "Can't assign operand of this type");
+    else if (!_reducibleScalarTypes.count(leftType) && !_reducibleScalarTypes.count(rightType))
+        validateNodeTypes(findSymbol(left->toString())->first, findSymbol(right->toString())->first, right->_token._pos);
 };
 
 void Parser::checkDuplicity(Token t) {

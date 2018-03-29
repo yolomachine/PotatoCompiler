@@ -1,19 +1,61 @@
 program test;
 type
 	int = integer;
+	rec = record
+			f1: integer;
+			end;
 var
 	a: int;
 	b: integer;
+	i: integer;
+	arr: array [1..3] of int;
+	arr1: array [1..4] of int;
+	r: rec;
+
+function f() : int;
 begin
-	a := 12345;
+	write(1+2);
+end;
+
+procedure p();
+begin
+end;
+
+begin
+	a := 12345 + f(r) - 42;
 	b := 10;
-	write(a);
-	write(100);
-	writeln(100-1);
+
+	if b > a then
+	begin
+		write(b);
+	end
+	else
+	begin
+		write(a);
+	end;
+	
+	if 1 <> 1 then
+	begin
+		write(9);
+	end
+	else
+		begin
+			if 1 = 1 then
+			begin
+				write (1);
+		end;
+	end;
+	
+	a := 10;
+	b := 11;
+	writeln(a * 4);
+	writeln(100 / 2);
+	writeln(a > b);
+	writeln(a = (b - 1));
+	writeln(100-1-2);
 	writeln(1+2);
 	writeln(a + b);
 end.
-
 
 
 
@@ -52,14 +94,16 @@ function func(abc, aac, a: a; into: int) : trecord;
 
 procedure proc(abc, aac, a: a; into: int);
 	type
-		int = real;
+		int = integer;
 	var
 	    aaa1: array [1..2] of array [1..3] of integer = ((1, 2, 3), (1, 2, 3));
 	    aaa2: int;
 	begin
+		aaa2 := 1;
 	end;
 
 var
+	iterator: int;
 	some_int: integer;
 	other_int: integer;
     aaa1: array [1..2] of array [1..3] of integer = ((1, 2, 3), (1, 2, 3));
@@ -103,6 +147,17 @@ begin
 	other_int := some_int + 1;
 	writeln(1);
 	write(some_int);
+	for iterator := 10 downto 1 do
+	begin
+		if iterator > 1 then
+		begin
+			writeln(iterator);
+		end
+		else
+		begin
+			write(1);
+		end;
+	end;
 	//a := 1+abc[a.b.c[func(123)]][1] + abc(1,2,aaa) / foo.bar.baz + 100 - (-(1 * 2 * 3 * 4 * (5 + 6 * (5 + 6)))) * a[1.10];
 end.
 }

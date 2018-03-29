@@ -18,12 +18,27 @@ enum class PrintFormat {
 };
 
 enum class AsmCommands {
+    NoCommand,
+
     Enter,
     Push,
     Pop,
     Lea,
     Mov,
+    Movsx,
+    Cdq,
+    Jump,
+    Jz,
     
+    Setge,
+    Setg,
+    Setle,
+    Setl,
+    Setne,
+    Sete,
+    Cmp,
+    Test,
+
     Add,
     Sub,
     Imul,
@@ -85,6 +100,7 @@ class AsmCode {
         static int getTypeSize(Node::PNode_t);
 
     private:
+        static int _ifLabelCounter;
         static int _offset;
         static std::map<std::string, std::pair<int, int>> _offsetMap;
         static std::vector<PAsmCommand> _commands;
@@ -97,4 +113,5 @@ class AsmCode {
         friend class Parser;
         friend class Node;
         friend class Identifier;
+        friend class If;
 };

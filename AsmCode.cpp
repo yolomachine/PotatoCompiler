@@ -1,16 +1,30 @@
 #include "AsmCode.hpp"
 
 int AsmCode::_offset = 0;
+int AsmCode::_ifLabelCounter = 0;
 std::vector<AsmCode::PAsmCommand> AsmCode::_commands = {};
 std::map<std::string, AsmCode::PAsmConstant> AsmCode::_constants = {};
 std::map<std::string, std::pair<int, int>> AsmCode::_offsetMap = {};
 
 const AsmCode::AsmCommandsDict_t AsmCode::_asmCommands = {
+    { AsmCommands::NoCommand, "" },
     { AsmCommands::Enter,  "enter"  },
     { AsmCommands::Push,   "push"   },
     { AsmCommands::Pop,    "pop"    },
     { AsmCommands::Lea,    "lea"    },
     { AsmCommands::Mov,    "mov"    },
+    { AsmCommands::Movsx,  "movsx"  },
+    { AsmCommands::Cdq,    "cdq"    },
+    { AsmCommands::Jump,   "jmp"   },
+    { AsmCommands::Jz,     "jz"     },
+    { AsmCommands::Setge,  "setge"  },
+    { AsmCommands::Setg,   "setg"   },
+    { AsmCommands::Setle,  "setle"  },
+    { AsmCommands::Setl,   "setl"   },
+    { AsmCommands::Setne,  "setne"  },
+    { AsmCommands::Sete,   "sete"   },
+    { AsmCommands::Cmp,    "cmp"    },
+    { AsmCommands::Test,   "test"   },
     { AsmCommands::Add,    "add"    },
     { AsmCommands::Sub,    "sub"    },
     { AsmCommands::Imul,   "imul"   },
@@ -47,22 +61,13 @@ void AsmCode::addConstant(AsmCode::PAsmConstant constant) {
 };
 
 void AsmCode::generateStatements(Node::PNode_t node) {
-    if (node->_type == Node::Type::Identifier && std::dynamic_pointer_cast<Identifier>(node)->isAssignment) {
-        std::vector<std::string> args;
+    if (node->_type == Node::Type::If ||
+        node->_token._subClass == Token::SubClass::Assign)
         node->generate();
-        for (auto i : node->_children)
-            generateStatements(i);
-        args = { "eax" };
-        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
-        args = { "ebx" };
-        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
-        args = { "dword ptr [ebx], eax" };
-        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Mov, args));
-    }
     else {
         for (auto i : node->_children)
             generateStatements(i);
-        node->generate();
+            node->generate();
     };
 }
 
@@ -98,10 +103,12 @@ AsmCommand::AsmCommand(AsmCommands command, std::vector<std::string> args) : _ar
 
 std::string AsmCommand::print() {
     std::stringstream ss;
-    ss << _command << " ";
-    for (auto i : _args) {
-        ss << i;
-        if (i != _args.back())
+    ss << _command;
+    if (_command.length())
+        ss << " ";
+    for (auto i = _args.begin(); i != _args.end(); ++i) {
+        ss << *i;
+        if (i != _args.end()-1)
             ss << ", ";
     };
     
@@ -129,17 +136,9 @@ void IntConst::generate() {
 void Write::generate() {
     std::string bytesToClear;
     std::vector<std::string> args;
-    //if (_argument->_type == Node::Type::IntConst) {
-        AsmCode::addConstant(std::make_shared<AsmConstant>("__@strfmti", ConstSize::DB, PrintFormat::Integer));
-        args = { "offset __@strfmti" };
-        bytesToClear = "8";
-    //}
-    // placeholder
-    /*else if (_argument->_type == Node::Type::FloatConst) {
-        AsmCode::addConstant(std::make_shared<AsmConstant>("__@strfmtd", ConstSize::DQ, PrintFormat::Float));
-        args = { "offset __@strfmtd" };
-        bytesToClear = "16";
-    }*/
+    AsmCode::addConstant(std::make_shared<AsmConstant>("__@strfmti", ConstSize::DB, PrintFormat::Integer));
+    args = { "offset __@strfmti" };
+    bytesToClear = "8";
     AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Push, args));
     args = { "crt_printf" };
     AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Call, args));
@@ -150,19 +149,10 @@ void Write::generate() {
 void WriteLn::generate() {
     std::string bytesToClear;
     std::vector<std::string> args;
-    //if (_argument->_type == Node::Type::IntConst) {
-        AsmCode::addConstant(std::make_shared<AsmConstant>("__@strfmtiln", ConstSize::DB, PrintFormat::IntegerLn));
-        args = { "offset __@strfmtiln" };
-        bytesToClear = "8";
-        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Push, args));
-    //}
-    // placeholder
-    /*else if (_argument->_type == Node::Type::FloatConst) {
-        AsmCode::addConstant(std::make_shared<AsmConstant>("__@strfmtdln", ConstSize::DQ, PrintFormat::FloatLn));
-        args = { "offset __@strfmtdln" };
-        bytesToClear = "16";
-        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Push, args));
-    }*/
+    AsmCode::addConstant(std::make_shared<AsmConstant>("__@strfmtiln", ConstSize::DB, PrintFormat::IntegerLn));
+    args = { "offset __@strfmtiln" };
+    bytesToClear = "8";
+    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Push, args));
     args = { "crt_printf" };
     AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Call, args));
     args = { "esp", bytesToClear };
@@ -170,18 +160,109 @@ void WriteLn::generate() {
 };
 
 void BinaryOperator::generate() {
+    AsmCommands cmp;
     std::vector<std::string> args;
-    args = { "ebx" };
-    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
-    args = { "eax" };
-    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
-    args = { "eax", "ebx" };
     switch (_token._subClass) {
+    case Token::SubClass::Assign:
+        _children.front()->generate();
+        AsmCode::generateStatements(_children.back());
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "dword ptr [ebx]", "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Mov, args));
+        return;
+        break;
     case Token::SubClass::Add:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax", "ebx" };
         AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Add, args));
         break;
     case Token::SubClass::Sub:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax", "ebx" };
         AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Sub, args));
+        break;
+    case Token::SubClass::Mult:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Imul, args));
+        break;
+    case Token::SubClass::Div:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Cdq, args));
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Idiv, args));
+        break;
+    case Token::SubClass::Less:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax", "ebx" };
+        cmp = AsmCommands::Setge;
+        goto label;
+    case Token::SubClass::LEQ:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax", "ebx" };
+        cmp = AsmCommands::Setg;
+        goto label;
+    case Token::SubClass::More:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax", "ebx" };
+        cmp = AsmCommands::Setle;
+        goto label;
+    case Token::SubClass::MEQ:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax", "ebx" };
+        cmp = AsmCommands::Setl;
+        goto label;
+    case Token::SubClass::Equal:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax", "ebx" };
+        cmp = AsmCommands::Setne;
+        goto label;
+    case Token::SubClass::NEQ:
+        args = { "ebx" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+        args = { "eax", "ebx" };
+        cmp = AsmCommands::Sete;
+    label:
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Cmp, args));
+        args = { "al" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(cmp, args));
+        args = { "al", "1" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Sub, args));
+        args = { "eax", "al" };
+        AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Movsx, args));
         break;
     }
     args = { "eax" };
@@ -200,4 +281,32 @@ void Identifier::generate() {
         args = { "dword ptr [eax]" };
         AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Push, args));
     }
+};
+
+void If::generate() {
+    ++AsmCode::_ifLabelCounter;
+    std::vector<std::string> args;
+    AsmCode::generateStatements(_condition);
+    std::string elseLabel("else_branch");
+    elseLabel += std::to_string(AsmCode::_ifLabelCounter);
+    std::string endLabel("end_if");
+    endLabel += std::to_string(AsmCode::_ifLabelCounter);
+    args = { "eax" };
+    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Pop, args));
+    args = { "eax", "eax" };
+    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Test, args));
+    args = { elseLabel };
+    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Jz, args));
+    AsmCode::generateStatements(_thenBranch);
+    args = { endLabel };
+    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::Jump, args));
+    args = { elseLabel + ":" };
+    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::NoCommand, args));
+    AsmCode::generateStatements(_elseBranch);
+    args = { endLabel + ":" };
+    AsmCode::addCommand(std::make_shared<AsmCommand>(AsmCommands::NoCommand, args));
+};
+
+void For::generate() {
+
 };

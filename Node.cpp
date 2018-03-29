@@ -73,12 +73,12 @@ Record::Record(Token keyword, Node::VecPNode_t fields, Node::PSymTable_t symTabl
 Function::Function(Token name, Node::VecPNode_t children, Node::PNode_t params, Node::PNode_t type, Node::PVecPSymTable_t symTables) :
     Declaration(Type::Function, name, children), _paramList(params), _type(type), _localSymTables(symTables) {};
 Procedure::Procedure(Token name, Node::VecPNode_t children, Node::PNode_t params, Node::PVecPSymTable_t symTables) : 
-    Declaration(Type::Procedure, name, children), _paramList(params), _localSymTables(symTables) {};
+    Declaration(Type::Procedure, name, children), _paramList(params), _type(nullptr), _localSymTables(symTables) {};
 
 UnaryOperator::UnaryOperator(Token op, Node::PNode_t expr) : 
     ParentNode(Type::UnaryOperator, op, expr) {};
 BinaryOperator::BinaryOperator(Token op, PNode_t left, PNode_t right) : 
-    ParentNode(Type::UnaryOperator, op, left, right) {};
+    ParentNode(Type::BinaryOperator, op, left, right) {};
 Subrange::Subrange(Token op, Node::PNode_t lowerBound, Node::PNode_t upperBound) : 
     ParentNode(Type::Subrange, op, lowerBound, upperBound) {
     _lowerBound = lowerBound->_token._value.ull;
@@ -115,3 +115,13 @@ Write::Write(Token token, Node::PNode_t arg) :
     ParentNode(Node::Type::Write, token, arg), _argument(arg) {};
 WriteLn::WriteLn(Token token, Node::PNode_t arg) : 
     ParentNode(Node::Type::WriteLn, token, arg), _argument(arg) {};
+If::If(Token token, PNode_t condition, PNode_t thenBranch, PNode_t elseBranch) : 
+    ParentNode(Node::Type::If, token, thenBranch, elseBranch), _condition(condition), _thenBranch(thenBranch), _elseBranch(elseBranch) {};
+For::For(Token token, PNode_t initial, PNode_t to_downto, PNode_t final, PNode_t body) :
+    ParentNode(Node::Type::For, token, body), _initial(initial), _to_downto(to_downto), _final(final) {};
+To::To(Token token) : 
+    AtomicNode(Node::Type::To, token) {};
+DownTo::DownTo(Token token) :
+    AtomicNode(Node::Type::DownTo, token) {};
+ReservedWord::ReservedWord(Token token) :
+    AtomicNode(Node::Type::ReservedWord, token) {};

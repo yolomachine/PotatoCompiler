@@ -8,6 +8,7 @@
 class Parser {
 
     typedef Node::PNode_t (Parser::*PNodeFunction_t)(void);
+    typedef std::set<Node::Type> ScalarTypesDict_t;
     typedef std::map<Node::Type, std::string> NodeTypesDict_t;
     typedef std::map<std::string, Node::Type> IdentifierTypeDict_t;
     typedef std::map<Token::SubClass, Node::Type> SubClassTypeDict_t;
@@ -76,8 +77,11 @@ class Parser {
         void checkExprType(Node::PNode_t expr, Node::Type type);
         void checkDuplicity(Token t);
         void checkDuplicity(Token t, Node::PSymTable_t symTable);
+        void validateAssignment(Node::PNode_t left, Node::PNode_t right);
+        void validateNodeTypes(Node::PNode_t leftTypeNode, Node::PNode_t rightTypeNode, const Token::Position_t pos);
         Node::Type defineNodeType(Token t);
         Node::PNode_t defineConstType(Token t);
+        Node::Type validateAndReturnExprType(Node::PNode_t expr);
         PNodePair_t* findSymbol(std::string name);
         PNodePair_t* findSymbol(std::string name, Node::PSymTable_t symTable);
 
@@ -85,7 +89,8 @@ class Parser {
         PVecPSymTable_t _symTables;
         Node::PSymTable_t _typeAliases;
         PLexicalAnalyzer_t _lexicalAnalyzer;
-        //std::vector<VecPSymTable_t> _symTables;
+        std::shared_ptr<std::set<std::string>> _funcIdentifiersTable;
+        static const ScalarTypesDict_t _reducibleScalarTypes;
         static const NodeTypesDict_t _nodeTypes;
         static const SubClassTypeDict_t _subClassNodeTypes;
         static const IdentifierTypeDict_t _identifierNodeTypes;

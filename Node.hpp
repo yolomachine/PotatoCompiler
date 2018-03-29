@@ -64,11 +64,15 @@ class Node {
 
             Write,
             WriteLn,
+            If,
+            For,
+            To,
+            DownTo,
         };
-
+        // list -> vec
     public:
-        Node(Type type) : _type(type), _children(std::list<PNode_t>(0)) {};
-        Node(Type type, Token token) : _type(type), _token(token), _children(std::list<PNode_t>(0)) {};
+        Node(Type type) : _type(type), _children(std::vector<PNode_t>(0)) {};
+        Node(Type type, Token token) : _type(type), _token(token), _children(std::vector<PNode_t>(0)) {};
         virtual ~Node() {};
 
         virtual std::string toString();
@@ -79,13 +83,14 @@ class Node {
 
         Type _type;
         Token _token;
-        std::list<PNode_t> _children;
+        std::vector<PNode_t> _children;
         friend class Parser;
         friend class AsmCode;
         friend class Subrange;
         friend class Write;
         friend class WriteLn;
         friend class BinOp;
+        friend class If;
 };
 
 class NamedNode : public Node {
@@ -214,6 +219,7 @@ public:
     Procedure(Token name, VecPNode_t children, PNode_t params, PVecPSymTable_t symTable);
 
 private:
+    PNode_t _type;
     PNode_t _paramList;
     PVecPSymTable_t _localSymTables;
 };
@@ -326,4 +332,49 @@ class WriteLn : public ParentNode {
 
     private:
         PNode_t _argument;
+};
+
+class If : public ParentNode {
+    public:
+        If(Token token, PNode_t condition, PNode_t thenBranch, PNode_t elseBranch);
+        ~If() {};
+
+        void generate();
+
+    private:
+        PNode_t _condition;
+        PNode_t _thenBranch;
+        PNode_t _elseBranch;
+};
+
+class For : public ParentNode {
+    public:
+        For(Token token, PNode_t initial, PNode_t to_downto, PNode_t final, PNode_t body);
+        ~For() {};
+
+        void generate();
+
+    private:
+        PNode_t _initial;
+        PNode_t _to_downto;
+        PNode_t _final;
+        PNode_t _body;
+};
+
+class To : public AtomicNode {
+    public:
+        To(Token token);
+        ~To() {};
+};
+
+class DownTo : public AtomicNode {
+    public:
+        DownTo(Token token);
+        ~DownTo() {};
+};
+
+class ReservedWord : public AtomicNode {
+    public:
+        ReservedWord(Token token);
+        ~ReservedWord() {};
 };
