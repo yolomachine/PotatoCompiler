@@ -62,6 +62,7 @@ class Parser {
         Node::PNode_t parseSimpleExpr();
         Node::PNode_t parseTerm();
         Node::PNode_t parseFactor();
+        Node::PNode_t parseConstExpr();
         Node::PNode_t parseIdentifier(Token t);
         Node::PNode_t parseScalarIdentifier();
         Node::VecPNode_t parseArgs();
@@ -75,12 +76,14 @@ class Parser {
         bool checkPrecedence(Precedence p, Token::SubClass s);
         void checkExpr(Node::PNode_t expr);
         void checkExprType(Node::PNode_t expr, Node::Type type);
+        void checkIfExprIsConst(Node::PNode_t expr);
         void checkDuplicity(Token t);
         void checkDuplicity(Token t, Node::PSymTable_t symTable);
         void validateAssignment(Node::PNode_t left, Node::PNode_t right);
         void validateNodeTypes(Node::PNode_t leftTypeNode, Node::PNode_t rightTypeNode, const Token::Position_t pos);
         Node::Type defineNodeType(Token t);
         Node::PNode_t defineConstType(Token t);
+        Node::PNode_t defineConstType(Node::Type type);
         Node::Type validateAndReturnExprType(Node::PNode_t expr);
         PNodePair_t* findSymbol(std::string name);
         PNodePair_t* findSymbol(std::string name, Node::PSymTable_t symTable);

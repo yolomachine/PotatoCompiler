@@ -243,7 +243,7 @@ Node::VecPNode_t Parser::parseDeclarations(Token::SubClass separator, bool restr
     Node::VecPNode_t declarations;
     if (isParamList && _lexicalAnalyzer->currentToken()._subClass == Token::SubClass::RightParenthesis) {
         _lexicalAnalyzer->nextToken();
-        return declarations;
+        return Node::VecPNode_t({});
     };
     expect(Token::SubClass::Identifier);
 
@@ -269,6 +269,8 @@ Node::VecPNode_t Parser::parseDeclarations(Token::SubClass separator, bool restr
             isLocal ? checkDuplicity(i->_token, _symTables->back()) : checkDuplicity(i->_token);
             declarations.push_back(std::make_shared<ParentNode>(identifierType, i->_token, type));
             _symTables->back()->insert({ i->toString(), std::make_pair(type, nullptr) });
+            if (separator == Token::SubClass::Equal)
+                _typeAliases->insert({ i->toString(), std::make_pair(type, nullptr) });
         };
 
         if (!restrictedInitialization && _lexicalAnalyzer->currentToken()._subClass == Token::SubClass::Equal)
@@ -314,7 +316,7 @@ Node::PNode_t Parser::parseFuncDecl(Token t) {
 
 Node::PNode_t Parser::parseConstDecl(Token t) {
     Token next, identifier = _lexicalAnalyzer->currentToken();
-    Node::PNode_t type, value;
+    Node::PNode_t type, value, expr;
     Node::VecPNode_t constants;
 
     do {
@@ -324,23 +326,49 @@ Node::PNode_t Parser::parseConstDecl(Token t) {
             type = std::make_shared<TypeNode>(parseType(), Node::Type::ConstIdentifier);
             expect(Token::SubClass::Equal);
             _lexicalAnalyzer->nextToken();
+            value = std::make_shared<ValueNode>(parseInitialization(type));
             break;
         case Token::SubClass::Equal:
             _lexicalAnalyzer->nextToken();
-            type = std::make_shared<TypeNode>(defineConstType(_lexicalAnalyzer->currentToken()), Node::Type::ConstIdentifier);
+            expr = parseConstExpr();
+            type = std::make_shared<TypeNode>(defineConstType(validateAndReturnExprType(expr)), Node::Type::ConstIdentifier);
+            value = std::make_shared<ValueNode>(Node::VecPNode_t({ expr }));
             break;
         default:
             throwException(next._pos, "What a terrible failure");
             break;
         };
 
-        value = std::make_shared<ValueNode>(parseInitialization(type));
         expect(Token::SubClass::Semicolon);
         checkDuplicity(identifier);
         constants.push_back(std::make_shared<ParentNode>(Node::Type::ConstIdentifier, identifier, type, value));
         _symTables->back()->insert({ identifier.toString(), std::make_pair(type, value) });
     } while ((identifier = _lexicalAnalyzer->nextToken())._subClass == Token::SubClass::Identifier);
     return std::make_shared<Declaration>(Node::Type::ConstDecl, t, constants);
+};
+
+Node::PNode_t Parser::parseConstExpr() {
+    Token t = _lexicalAnalyzer->currentToken();
+    Node::PNode_t expr = parseExpr();
+    Node::Type exprType = validateAndReturnExprType(expr);
+    if (!_reducibleScalarTypes.count(exprType))
+        throwException(t._pos, "Scalar type expected");
+    checkIfExprIsConst(expr);
+    return expr;
+};
+
+void Parser::checkIfExprIsConst(Node::PNode_t expr) {
+    if (expr->_type == Node::Type::BinaryOperator ||
+        expr->_type == Node::Type::UnaryOperator ||
+        expr->_type == Node::Type::IntConst ||
+        expr->_type == Node::Type::FloatConst ||
+        expr->_type == Node::Type::CharConst ||
+        (findSymbol(expr->toString()) &&
+         findSymbol(expr->toString())->first->_children.front()->_type == Node::Type::ConstIdentifier))
+        for (auto i : expr->_children)
+            checkIfExprIsConst(i);
+    else
+        throwException(expr->_token._pos, "Const identifier or expression expected: \"" + expr->toString() + "\"");
 };
 
 // la patte
@@ -572,6 +600,21 @@ Node::Type Parser::defineNodeType(Token t) {
     throwException(t._pos, "Error in type definition");
 };
 
+Node::PNode_t Parser::defineConstType(Node::Type type) {
+    switch (type) {
+    case Node::Type::Float:
+        return std::make_shared<NamedNode>(Node::Type::FloatConst, "real");
+    case Node::Type::Char:
+        //return t.toString().length() > 1 ?
+            //std::make_shared<NamedNode>(Node::Type::StringLiteral, "string") :
+            std::make_shared<NamedNode>(Node::Type::CharConst, "char");
+    case Node::Type::Integer:
+        return std::make_shared<NamedNode>(Node::Type::IntConst, "integer");
+    default:
+        break;
+    }
+};
+
 Node::PNode_t Parser::defineConstType(Token t) {
     switch (t._vtype) {
     case Token::ValueType::Double:
@@ -733,7 +776,7 @@ Node::VecPNode_t Parser::parseArgs() {
 
 void Parser::buildTree() {
     _root = parseProgram();
-    //int offset;
+    int offset;
     //for (auto i : *_symTables.get())
     //    for (auto j : *i.get()) {
     //        if (!std::dynamic_pointer_cast<TypeNode>(j.second.first)->isTypeAlias()) {
@@ -866,15 +909,30 @@ Node::Type Parser::validateAndReturnExprType(Node::PNode_t expr) {
                 (leftType == Node::Type::Float && rightType == Node::Type::Integer))
                 return Node::Type::Float;
         }
-        else if (expr->_token._subClass == Token::SubClass::Div)
-            return Node::Type::Float;
+        else if (expr->_token._subClass == Token::SubClass::SHL ||
+            expr->_token._subClass == Token::SubClass::SHR ||
+            expr->_token._subClass == Token::SubClass::And ||
+            expr->_token._subClass == Token::SubClass::Or ||
+            expr->_token._subClass == Token::SubClass::Mod ||
+            expr->_token._subClass == Token::SubClass::Div) {
+            if ((leftType == Node::Type::Float) || (rightType == Node::Type::Integer) ||
+                (leftType == Node::Type::Char) || (rightType == Node::Type::Char))
+                throwException(expr->_token._pos, "Can't apply operator \"" + expr->toString() + "\" to other than integers");
+            else if (expr->_token._subClass == Token::SubClass::Div)
+                return Node::Type::Float;
+            else
+                return Node::Type::Integer;
+        }
         else if (expr->_token._subClass == Token::SubClass::Equal ||
                  expr->_token._subClass == Token::SubClass::Less ||
                  expr->_token._subClass == Token::SubClass::More ||
                  expr->_token._subClass == Token::SubClass::LEQ ||
                  expr->_token._subClass == Token::SubClass::MEQ ||
-                 expr->_token._subClass == Token::SubClass::NEQ)
-            return Node::Type::Integer;
+                 expr->_token._subClass == Token::SubClass::NEQ) 
+            if (leftType == Node::Type::Char || rightType == Node::Type::Char)
+                throwException(expr->_token._pos, "Can't apply operator \"" + expr->toString() + "\" to chars");
+            else
+                return Node::Type::Integer;
     }
     else if (expr->_type == Node::Type::UnaryOperator)
         return validateAndReturnExprType(expr->_children.front());
@@ -885,9 +943,15 @@ Node::Type Parser::validateAndReturnExprType(Node::PNode_t expr) {
             throwException(expr->_children.front()->_token._pos, "Identifier's not a function or a procedure: \"" + expr->_children.front()->toString() + "\"");
         if (findSymbol(expr->_children.front()->toString())->first) {
             Function* f = std::static_pointer_cast<Function>(findSymbol(expr->_children.front()->toString())->second).get();
-            for (size_t i = 1; i < expr->_children.size(); ++i) {
-                if (findSymbol(expr->_children[i]->toString())); ///////////
-            }
+            Node::VecPNode_t params = std::static_pointer_cast<ParameterList>(f->_paramList)->getParams();
+            if (params.size() != expr->_children.size() - 1)
+                throwException(expr->_children.front()->_token._pos, "Wrong amount of arguments in function call \"" + expr->_children.front()->toString() + "\"");
+            //for (size_t i = 1; i < expr->_children.size(); ++i) {
+            //    if (findSymbol(expr->_children[i]->toString())) /////////// validate
+            //        validateNodeTypes(params[i - 1], findSymbol(expr->_children[i]->toString())->first->_children.front(), expr->_children[i]->_token._pos);
+            //    else
+            //        validateNodeTypes(params[i - 1], expr->_children[i], expr->_children[i]->_token._pos);
+            //}
             return findSymbol(expr->_children.front()->toString())->first->_children.front()->_type;
         }
         else

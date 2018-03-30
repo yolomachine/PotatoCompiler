@@ -10,9 +10,16 @@ int main(int argc, char* argv[]) {
         std::cout << "-l\tlexical analysis\n";
     };
 
-    for (int i = 0; i < argc; ++i)
+    for (int i = 0; i < argc; ++i) {
         if (std::string(argv[i]) == "-l")
             LexicalAnalyzer(argv[i + 1]).log(std::ofstream("tokens.log"));
+        else if (std::string(argv[i]) == "-ast") {
+            const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
+            std::wofstream stream("syntax.log");
+            stream.imbue(utf8_locale);
+            Parser(argv[i + 1]).log(stream);
+        };
+    };
 
     const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
     std::wofstream stream("syntax.log");

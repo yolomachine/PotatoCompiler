@@ -12,35 +12,7 @@ enter 12, 1
 lea eax, dword ptr [ebp - 4]
 push eax
 push 12345
-push 123
-pop ebx
-pop eax
-add eax, ebx
-push eax
-push 5
-push 2
-pop ebx
-pop eax
-imul ebx
-push eax
-pop ebx
-pop eax
-sub eax, ebx
-push eax
-lea eax, dword ptr [ebp - 4]
-push eax
-push 12345
-push 123
-pop ebx
-pop eax
-add eax, ebx
-push eax
-push 5
-push 2
-pop ebx
-pop eax
-imul ebx
-push eax
+push 42
 pop ebx
 pop eax
 sub eax, ebx
@@ -48,9 +20,6 @@ push eax
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
-lea eax, dword ptr [ebp - 8]
-push eax
-push 10
 lea eax, dword ptr [ebp - 8]
 push eax
 push 10
@@ -125,15 +94,9 @@ end_if2:
 lea eax, dword ptr [ebp - 4]
 push eax
 push 10
-lea eax, dword ptr [ebp - 4]
-push eax
-push 10
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
-lea eax, dword ptr [ebp - 8]
-push eax
-push 11
 lea eax, dword ptr [ebp - 8]
 push eax
 push 11

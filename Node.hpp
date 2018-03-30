@@ -208,7 +208,6 @@ class Function : public Declaration {
 public:
     Function(Token name, VecPNode_t children, PNode_t params, PNode_t type, PVecPSymTable_t symTable);
 
-private:
     PNode_t _type;
     PNode_t _paramList;
     PVecPSymTable_t _localSymTables;
@@ -218,7 +217,6 @@ class Procedure : public Declaration {
 public:
     Procedure(Token name, VecPNode_t children, PNode_t params, PVecPSymTable_t symTable);
 
-private:
     PNode_t _type;
     PNode_t _paramList;
     PVecPSymTable_t _localSymTables;
